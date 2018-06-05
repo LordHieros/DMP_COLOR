@@ -1,0 +1,17 @@
+body { 
+	padding-top: 80px;
+}
+
+nav {
+	max-height: 80px;
+}
+
+.looklikelink {
+     background:none!important;
+     color:inherit;
+     border:none; 
+     padding:0!important;
+     font: inherit;
+     cursor: pointer;
+}
+
