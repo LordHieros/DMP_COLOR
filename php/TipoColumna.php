@@ -2,6 +2,7 @@
 
 final class TipoColumna
 {
+
     private $tipoSql;
 
     /**
@@ -9,11 +10,13 @@ final class TipoColumna
      *
      * @return string
      */
-    function getTipoSql(){
+    function getTipoSql()
+    {
         return $this->tipoSql;
     }
 
     private static $bool;
+
     /**
      * Usa boolean, se guarda en BD como 1/0
      * Singleton
@@ -30,6 +33,7 @@ final class TipoColumna
     }
 
     private static $multString;
+
     /**
      * array de strings, uno por cada PK.
      * Se incluye en campos, no en claves. Tiene que ser un array, nunca un String único.
@@ -39,7 +43,8 @@ final class TipoColumna
      *
      * @return TipoColumna
      */
-    static function multString(){
+    static function multString()
+    {
         if (! isset(self::$multString)) {
             self::$multString = new TipoColumna();
             self::$multString->tipoSql = 'VARCHAR';
@@ -48,13 +53,15 @@ final class TipoColumna
     }
 
     private static $int;
+
     /**
      * Numero entero, sin tratamiento especial
      * Singleton
      *
      * @return TipoColumna
      */
-    static function int(){
+    static function int()
+    {
         if (! isset(self::$int)) {
             self::$int = new TipoColumna();
             self::$int->tipoSql = 'INT';
@@ -63,13 +70,15 @@ final class TipoColumna
     }
 
     private static $float;
+
     /**
      * Numero decimal, sin tratamiento especial
      * Singleton
      *
      * @return TipoColumna
      */
-    static function float(){
+    static function float()
+    {
         if (! isset(self::$float)) {
             self::$float = new TipoColumna();
             self::$float->tipoSql = 'DECIMAL';
@@ -78,13 +87,15 @@ final class TipoColumna
     }
 
     private static $string;
+
     /**
      * Cadena de caracteres, sin tratamiento especial
      * Singleton
      *
      * @return TipoColumna
      */
-    static function string(){
+    static function string()
+    {
         if (! isset(self::$string)) {
             self::$string = new TipoColumna();
             self::$string->tipoSql = 'VARCHAR';
@@ -93,13 +104,15 @@ final class TipoColumna
     }
 
     private static $date;
+
     /**
      * Fecha, sin tratamiento especial
      * Singleton
      *
      * @return TipoColumna
      */
-    static function date(){
+    static function date()
+    {
         if (! isset(self::$date)) {
             self::$date = new TipoColumna();
             self::$date->tipoSql = 'DATE';
@@ -109,6 +122,5 @@ final class TipoColumna
 
     // Impide que la clase se instancie desde fuera
     private function __construct()
-    {
-    }
+    {}
 }

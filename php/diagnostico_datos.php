@@ -18,7 +18,6 @@
 			comprueba_nasi();
 			if(isset($_POST['fecha'])){
 				$fecha = $_POST['fecha'];
-				
 				$stmt = Conexion::getpdo()->prepare('SELECT * FROM Diagnosticos where Filiaciones_NASI=:nasi AND fecha=:fecha;');
 				$stmt->execute(['nasi' => $nasi, 'fecha' => $fecha]);
 				$resultado = $stmt->fetchAll();

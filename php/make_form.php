@@ -1,6 +1,4 @@
 <?php
-    final class MakeForm
-    {
         //Crea el propio objeto input
         function make_input_tag($input)
         {
@@ -282,12 +280,12 @@
             //Iniciamos el string que contendrá el código html del formulario
             $formulario = '
 		<form action="' . $form->getAction() . '" method="post"';
-            if (array_key_exists('opt', $form)) { //De haberlas añadimos las opciones
-                $formulario = $formulario . $form['opt'];
-            }
-            if (array_key_exists('class', $form)) { //De haberlas añadimos las clases
-                $formulario = $formulario . ' class="' . $form['class'] . '"';
-            }
+//             if (array_key_exists('opt', $form)) { //De haberlas añadimos las opciones
+//                 $formulario = $formulario . $form['opt'];
+//             }
+//             if (array_key_exists('class', $form)) { //De haberlas añadimos las clases
+//                 $formulario = $formulario . ' class="' . $form['class'] . '"';
+//             }
             $formulario = $formulario . ' data-spy="scroll" data-target=".nav" data-offset="50">
 		<div class="row">
 		';
@@ -351,5 +349,5 @@
             }
             return $resultado_objetivo;
         }
-    }
+    
 ?>

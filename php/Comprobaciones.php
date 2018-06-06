@@ -25,7 +25,6 @@ final class Comprobaciones
     static function compruebaNasi(){
         self::compruebaNombre();
         if(isset($_POST[CampoSession::NASI])) { //Esto existe para proteger la base de datos; en caso de intentar seleccionar un NASI al que no se pueda acceder se mandará de vuelta al panel con un mensaje de error. Si se puede acceder se añade el nasi a la sesión.
-            require 'Conexion.php';
             $stmt = Conexion::getpdo()->prepare('SELECT * FROM Usuarios_has_Claves where Usuarios_nombre=:nombre AND Claves_NASI=:nasi;');
             $stmt->execute(['nombre' => $_SESSION[CampoSession::NOMBRE], 'nasi' => $_POST[CampoSession::NASI]]);
             $resultado = $stmt->fetchAll();

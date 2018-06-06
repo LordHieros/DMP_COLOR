@@ -38,8 +38,7 @@ final class AccesoBD
                         $res->addCampo($resultado[0][$campo->getColumna()], $campo);
                     }
                 }
-            }
-            else{
+            } else {
                 $res = null;
             }
             return $res;
@@ -140,7 +139,7 @@ final class AccesoBD
      */
     private static function makeInsert($tabla, $datos)
     {
-        //Inutil, usado para evitar un warning del phpstorm que no le gusta que se acabe string en abrir paréntesis.
+        // Inutil, usado para evitar un warning del phpstorm que no le gusta que se acabe string en abrir paréntesis.
         $tmp = ' (';
         $statement = 'INSERT INTO ' . $tabla->getNombreTabla() . $tmp;
         $keys = null;

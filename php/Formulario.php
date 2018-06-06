@@ -4,10 +4,15 @@ final class Formulario
 {
 
     private $items;
+
     private $claves;
+
     private $action;
+    
     private $legend;
     
+    private $method;
+
     /**
      * Devuelve los items del formulario
      *
@@ -30,6 +35,7 @@ final class Formulario
 
     /**
      * Devuelve la accion del formulario
+     * String vacío por defecto
      *
      * @return string
      */
@@ -37,9 +43,10 @@ final class Formulario
     {
         return $this->action;
     }
-
+    
     /**
      * Devuelve la leyenda del formulario
+     * null por defecto
      *
      * @return string
      */
@@ -47,12 +54,26 @@ final class Formulario
     {
         return $this->legend;
     }
+    
+    /**
+     * Devuelve el method del formulario
+     * post por defecto
+     *
+     * @return string
+     */
+    function getMethod()
+    {
+        return $this->method;
+    }
 
     // Impide que la clase se instancie desde fuera
     private function __construct($items, $claves)
     {
         $this->items = $items;
         $this->claves = $claves;
+        $this->action = '';
+        $this->legend = null;
+        $this->method = 'post';
     }
 
     private static $formLogin;
@@ -69,10 +90,8 @@ final class Formulario
             $items = array(
                 self::grupoLogin()
             );
-            $claves = array(
-            );
+            $claves = array();
             self::$formLogin = new Formulario($items, $claves);
-            self::$formLogin->action = '';
             self::$formLogin->legend = 'Iniciar sesión';
         }
         return self::$formLogin;
@@ -289,5 +308,4 @@ final class Formulario
         }
         return $datos;
     }
-    
 }

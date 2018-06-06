@@ -53,22 +53,25 @@ final class DatosTabla
      *
      * @return DatosTabla
      */
-
-    public static function makeFromSession(){
+    public static function makeFromSession()
+    {
         return self::makeFromClaves(self::getSessionClaves());
     }
 
     /**
-     * Crea un $datosTabla con solo claves, sin tabla asociada. No permite hacer chequeo, con lo que no es muy seguro.
+     * Crea un $datosTabla con solo claves, sin tabla asociada.
+     * No permite hacer chequeo, con lo que no es muy seguro.
      *
-     * @param $claves
+     * @param
+     *            $claves
      * @return DatosTabla
      */
-
-    public static function makeFromClaves($claves){
-            $datosBase = new DatosTabla(null);
-            $datosBase->claves = $claves;;
-            return $datosBase;
+    public static function makeFromClaves($claves)
+    {
+        $datosBase = new DatosTabla(null);
+        $datosBase->claves = $claves;
+        ;
+        return $datosBase;
     }
 
     /**
@@ -111,14 +114,15 @@ final class DatosTabla
 
     /**
      * Añade el campo a la columna correspondiente
-     * 
-     * @param $campo
+     *
+     * @param
+     *            $campo
      * @param Columna $columna
      * @throws Exception
      */
     public function addCampo($campo, $columna)
     {
-        if($this->checkColumnaCampo($columna)){
+        if ($this->checkColumnaCampo($columna)) {
             $newCampo[$columna->getNombre()] = $campo;
             array_merge($this->campos, $newCampo);
         } else {
@@ -128,7 +132,7 @@ final class DatosTabla
 
     /**
      * Comprueba si la columna es uno de los campos de la tabla
-     * 
+     *
      * @param Columna $columna
      * @return boolean
      */
@@ -148,17 +152,16 @@ final class DatosTabla
      *
      * @return array
      */
-
-    private static function getSessionClaves(){
+    private static function getSessionClaves()
+    {
         $claves = array();
-        if(array_key_exists(CampoSession::NOMBRE, $_SESSION)){
+        if (array_key_exists(CampoSession::NOMBRE, $_SESSION)) {
             $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION(CampoSession::NOMBRE);
-        }
-        else if(array_key_exists(CampoSession::USUARIO, $_SESSION)){
+        } else if (array_key_exists(CampoSession::USUARIO, $_SESSION)) {
             $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION(CampoSession::USUARIO);
         }
         foreach (CampoSession::getPKs() as $PK) {
-            if(array_key_exists($PK, $_SESSION)){
+            if (array_key_exists($PK, $_SESSION)) {
                 $claves[$PK] = $_SESSION[$PK];
             }
         }
@@ -171,12 +174,13 @@ final class DatosTabla
      * @param Tabla $tabla
      * @return DatosTabla
      */
-    public static function makeWithSessionKeys($tabla){
+    public static function makeWithSessionKeys($tabla)
+    {
         $res = new DatosTabla($tabla);
         $clavesSession = self::getSessionClaves();
         $claves = array();
         foreach ($tabla->getClaves() as $clave) {
-            if(array_key_exists($clave->getNombre(), $clavesSession)){
+            if (array_key_exists($clave->getNombre(), $clavesSession)) {
                 $claves[$clave->getNombre()] = $clavesSession[$clave->getNombre()];
             }
         }

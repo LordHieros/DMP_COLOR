@@ -4,7 +4,9 @@ final class Tabla
 {
 
     private $nombreTabla;
+
     private $claves;
+
     private $campos;
 
     /**

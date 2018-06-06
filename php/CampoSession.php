@@ -83,7 +83,13 @@ final class CampoSession
      *
      * @return array
      */
-    public static function getPKs(){
-        return array(self::ID_HOSPITAL, self::FECHA_DIAGNOSTICO, self::FECHA_INTERVENCION, self::NASI);
+    public static function getPKs()
+    {
+        return array(
+            self::ID_HOSPITAL,
+            self::FECHA_DIAGNOSTICO,
+            self::FECHA_INTERVENCION,
+            self::NASI
+        );
     }
 }

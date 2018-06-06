@@ -2,9 +2,13 @@
 
 final class TipoItem
 {
+
     const SI = "Si";
+
     const NO = "No";
+
     const CON_CIRUGIA = "Con cirugía";
+
     const SIN_CIRUGIA = "Sin cirugía";
 
     private $tipoInput;
@@ -14,18 +18,22 @@ final class TipoItem
      *
      * @return string
      */
-    function getTipoInput(){
+    function getTipoInput()
+    {
         return $this->tipoInput;
     }
 
     private static $checkbox;
+
     /**
-     * Tipo Checkbox, implica pasar valores como array. En POST tiene que añadirse [] al nombre
+     * Tipo Checkbox, implica pasar valores como array.
+     * En POST tiene que añadirse [] al nombre
      * Singleton
      *
      * @return TipoItem
      */
-    static function checkbox(){
+    static function checkbox()
+    {
         if (! isset(self::$checkbox)) {
             self::$checkbox = new TipoItem();
             self::$checkbox->tipoInput = 'checkbox';
@@ -34,13 +42,15 @@ final class TipoItem
     }
 
     private static $radio;
+
     /**
      * Tipo Radio
      * Singleton
      *
      * @return TipoItem
      */
-    static function radio(){
+    static function radio()
+    {
         if (! isset(self::$radio)) {
             self::$radio = new TipoItem();
             self::$radio->tipoInput = 'radio';
@@ -49,13 +59,15 @@ final class TipoItem
     }
 
     private static $number;
+
     /**
      * Campo de entrada numérica, pueden especificarse máx y min
      * Singleton
      *
      * @return TipoItem
      */
-    static function number(){
+    static function number()
+    {
         if (! isset(self::$number)) {
             self::$number = new TipoItem();
             self::$number->tipoInput = 'number';
@@ -64,13 +76,15 @@ final class TipoItem
     }
 
     private static $date;
+
     /**
      * Campo de entrada de fecha (oculto)
      * Singleton
      *
      * @return TipoItem
      */
-    static function date(){
+    static function date()
+    {
         if (! isset(self::$date)) {
             self::$date = new TipoItem();
             self::$date->tipoInput = 'date';
@@ -79,13 +93,15 @@ final class TipoItem
     }
 
     private static $text;
+
     /**
      * Campo de entrada de texto
      * Singleton
      *
      * @return TipoItem
      */
-    static function text(){
+    static function text()
+    {
         if (! isset(self::$text)) {
             self::$text = new TipoItem();
             self::$text->tipoInput = 'text';
@@ -94,13 +110,15 @@ final class TipoItem
     }
 
     private static $password;
+
     /**
      * Campo de entrada de contraseña (oculto)
      * Singleton
      *
      * @return TipoItem
      */
-    static function password(){
+    static function password()
+    {
         if (! isset(self::$password)) {
             self::$password = new TipoItem();
             self::$password->tipoInput = 'password';
@@ -109,13 +127,15 @@ final class TipoItem
     }
 
     private static $boolean;
+
     /**
      * Para opciones booleanas, se guarda en la base de datos
      * Singleton
      *
      * @return TipoItem
      */
-    static function boolean(){
+    static function boolean()
+    {
         if (! isset(self::$boolean)) {
             self::$boolean = new TipoItem();
             self::$boolean->tipoInput = 'radio';
@@ -124,13 +144,15 @@ final class TipoItem
     }
 
     private static $siNo;
+
     /**
      * Para opciones de si/no, no se guarda directamente en la base de datos
      * Singleton
      *
      * @return TipoItem
      */
-    static function siNo(){
+    static function siNo()
+    {
         if (! isset(self::$siNo)) {
             self::$siNo = new TipoItem();
             self::$siNo->tipoInput = 'radio';
@@ -139,13 +161,15 @@ final class TipoItem
     }
 
     private static $metastasis;
+
     /**
      * Para metástasis pulmonares y hepáticas, que incluyen opcion de no, si con cirugia y si sin cirugia
      * Singleton
      *
      * @return TipoItem
      */
-    static function metastasis(){
+    static function metastasis()
+    {
         if (! isset(self::$metastasis)) {
             self::$metastasis = new TipoItem();
             self::$metastasis->tipoInput = 'radio';
@@ -154,13 +178,15 @@ final class TipoItem
     }
 
     private static $agrupacion;
+
     /**
      * Para agrupaciones, sin input propio
      * Singleton
      *
      * @return TipoItem
      */
-    static function agrupacion(){
+    static function agrupacion()
+    {
         if (! isset(self::$agrupacion)) {
             self::$agrupacion = new TipoItem();
             self::$agrupacion->tipoInput = null;
@@ -170,6 +196,5 @@ final class TipoItem
 
     // Impide que la clase se instancie desde fuera
     private function __construct()
-    {
-    }
+    {}
 }

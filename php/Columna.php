@@ -4,8 +4,11 @@ final class Columna
 {
 
     private $nombre;
+
     private $tipo;
+
     private $columna;
+
     private $tabla;
 
     /**
@@ -51,8 +54,7 @@ final class Columna
 
     // Impide que la clase se instancie desde fuera
     private function __construct()
-    {
-    }
+    {}
 
     // Propios de Hospital
     private static $idHospital;
