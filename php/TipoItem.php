@@ -10,6 +10,10 @@ final class TipoItem
     const CON_CIRUGIA = "Con cirugía";
 
     const SIN_CIRUGIA = "Sin cirugía";
+    
+    const CHECKBOX = 'checkbox';
+    
+    const RADIO = 'radio';
 
     private $tipoInput;
 
@@ -36,7 +40,7 @@ final class TipoItem
     {
         if (! isset(self::$checkbox)) {
             self::$checkbox = new TipoItem();
-            self::$checkbox->tipoInput = 'checkbox';
+            self::$checkbox->tipoInput = self::CHECKBOX;
         }
         return self::$checkbox;
     }
@@ -53,7 +57,7 @@ final class TipoItem
     {
         if (! isset(self::$radio)) {
             self::$radio = new TipoItem();
-            self::$radio->tipoInput = 'radio';
+            self::$radio->tipoInput = self::RADIO;
         }
         return self::$radio;
     }
@@ -138,7 +142,7 @@ final class TipoItem
     {
         if (! isset(self::$boolean)) {
             self::$boolean = new TipoItem();
-            self::$boolean->tipoInput = 'radio';
+            self::$boolean->tipoInput = self::RADIO;
         }
         return self::$boolean;
     }
@@ -155,7 +159,7 @@ final class TipoItem
     {
         if (! isset(self::$siNo)) {
             self::$siNo = new TipoItem();
-            self::$siNo->tipoInput = 'radio';
+            self::$siNo->tipoInput = self::RADIO;
         }
         return self::$siNo;
     }
@@ -172,7 +176,7 @@ final class TipoItem
     {
         if (! isset(self::$metastasis)) {
             self::$metastasis = new TipoItem();
-            self::$metastasis->tipoInput = 'radio';
+            self::$metastasis->tipoInput = self::RADIO;
         }
         return self::$metastasis;
     }

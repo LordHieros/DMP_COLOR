@@ -62,14 +62,14 @@ final class DatosTabla
      * Crea un $datosTabla con solo claves, sin tabla asociada.
      * No permite hacer chequeo, con lo que no es muy seguro.
      *
-     * @param
-     *            $claves
+     * @param $claves
      * @return DatosTabla
      */
     public static function makeFromClaves($claves)
     {
         $datosBase = new DatosTabla(null);
         $datosBase->claves = $claves;
+        //TODO MIRAR!
         ;
         return $datosBase;
     }

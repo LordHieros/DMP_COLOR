@@ -20,6 +20,8 @@ final class ItemFormulario
     private $columna;
 
     private $valores;
+    
+    private $tablaCirugia;
 
     /**
      * Devuelve el tipo de item
@@ -100,11 +102,17 @@ final class ItemFormulario
     /**
      * Devuelve la tabla asociada al item del formulario
      * null por defecto
+     * si hay columna devuelve la tabla asociada a la columna
      *
      * @return Tabla
      */
     function getTabla()
     {
+        if($this->tabla == NULL){
+            if($this->getColumna()!=NULL){
+                $this->tabla = $this->getColumna()->getTabla();
+            }
+        }
         return $this->tabla;
     }
 
@@ -128,6 +136,18 @@ final class ItemFormulario
     function getNest()
     {
         return $this->nest;
+    }
+    
+    /**
+     * Devuelve la tabla de cirugía asociada a la metástasis
+     * solo existe en caso de que sea un item de tipo metástasis
+     * null por defecto (por que por qué no?)
+     *
+     * @return Tabla
+     */
+    function getTablaCirugia()
+    {
+        return $this->tablaCirugia;
     }
 
     /**
@@ -181,6 +201,7 @@ final class ItemFormulario
         $this->opciones = '';
         $this->tabla = null;
         $this->columna = null;
+        $this->tablaCirugia = null;
     }
 
     /**
@@ -450,7 +471,7 @@ final class ItemFormulario
                 self::tecnicaCirugiaHepatica(),
                 self::fechaCirugiaHepatica()
             );
-            self::$hayMetastasisHepatica->tabla = Tabla::MetastasisHepaticas();
+            self::$hayMetastasisHepatica->tablaCirugia = Tabla::CirugiasHepaticas();
         }
         return self::$hayMetastasisHepatica;
     }
@@ -540,6 +561,7 @@ final class ItemFormulario
             self::$hayMetastasisPulmonar->nest = array(
                 self::fechaCirugiaPulmonar()
             );
+            self::$hayMetastasisPulmonar->tablaCirugia = Tabla::CirugiasPulmonares();
         }
         return self::$hayMetastasisPulmonar;
     }

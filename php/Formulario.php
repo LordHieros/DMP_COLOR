@@ -12,6 +12,8 @@ final class Formulario
     private $legend;
     
     private $method;
+    
+    private $modelo;
 
     /**
      * Devuelve los items del formulario
@@ -65,15 +67,32 @@ final class Formulario
     {
         return $this->method;
     }
+    
+    /**
+     * Devuelve el modelo del formulario
+     *
+     * @return Modelo
+     */
+    function getModelo()
+    {
+        return $this->modelo;
+    }
 
-    // Impide que la clase se instancie desde fuera
-    private function __construct($items, $claves)
+    /**
+     * Cosntructior, requiere itemsFormulario, claves y modelo
+     * 
+     * @param ItemFormulario[] $items
+     * @param string[] $claves
+     * @param Modelo $modelo
+     */
+    private function __construct($items, $claves, $modelo)
     {
         $this->items = $items;
         $this->claves = $claves;
         $this->action = '';
         $this->legend = null;
         $this->method = 'post';
+        $this->modelo = $modelo;
     }
 
     private static $formLogin;
@@ -91,7 +110,7 @@ final class Formulario
                 self::grupoLogin()
             );
             $claves = array();
-            self::$formLogin = new Formulario($items, $claves);
+            self::$formLogin = new Formulario($items, $claves, Modelo::modeloUsuarios());
             self::$formLogin->legend = 'Iniciar sesión';
         }
         return self::$formLogin;
@@ -117,7 +136,7 @@ final class Formulario
                 CampoSession::NASI,
                 CampoSession::FECHA_DIAGNOSTICO
             );
-            self::$formDiagnostico = new Formulario($items, $claves);
+            self::$formDiagnostico = new Formulario($items, $claves, Modelo::modeloDiagnostico());
             self::$formDiagnostico->action = 'php/diagnostico_datos.php';
             self::$formDiagnostico->legend = 'Diagnóstico';
         }
@@ -145,7 +164,7 @@ final class Formulario
                 CampoSession::FECHA_DIAGNOSTICO,
                 CampoSession::FECHA_INTERVENCION
             );
-            self::$formIntervencion = new Formulario($items, $claves);
+            self::$formIntervencion = new Formulario($items, $claves, Modelo::modeloIntervencion());
             self::$formIntervencion->action = 'php/intervencion_datos.php';
             self::$formIntervencion->legend = 'Intervención';
         }
@@ -307,5 +326,16 @@ final class Formulario
             $datos = $item->makeDatos($datos);
         }
         return $datos;
+    }
+    
+    /**
+     * Crea el html del formulario
+     *
+     * @throws Exception
+     * @return string
+     */
+    public function makeHtml()
+    {
+        return MakeForm::makeForm($this);
     }
 }

@@ -49,9 +49,9 @@ final class Modelo
         }
         return self::$modeloDiagnostico;
     }
-
+    
     private static $modeloIntervencion;
-
+    
     /**
      * Singleton de modeloIntervencion
      *
@@ -79,6 +79,24 @@ final class Modelo
             );
         }
         return self::$modeloIntervencion;
+    }
+    
+    private static $modeloUsuarios;
+    
+    /**
+     * Singleton de modeloUsuarios
+     *
+     * @return Modelo
+     */
+    static function modeloUsuarios()
+    {
+        if (! isset(self::$modeloUsuarios)) {
+            self::$modeloUsuarios = new Modelo();
+            self::$modeloUsuarios->tablas = array(
+                Tabla::Usuarios()
+            );
+        }
+        return self::$modeloUsuarios;
     }
 
     /**
