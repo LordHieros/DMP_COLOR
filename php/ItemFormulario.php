@@ -1,5 +1,9 @@
 <?php
 
+include('Columna.php');
+include('TipoItem.php');
+include('DatosTabla.php');
+
 final class ItemFormulario
 {
 

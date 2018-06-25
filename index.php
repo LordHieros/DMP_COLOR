@@ -1,7 +1,8 @@
 <?php
 	include('php/header.php');
 	include('php/login.php'); // Includes Login Script
-	include('php/make_form.php');
+    include('php/MakeForm.php');
+    include('php/Formulario.php');
 
 	if(isset($_SESSION[CampoSession::USUARIO])){ header("location: panel.php"); } //Para ir al panel de usuario si ya se ha iniciado sesión
 	//EMPIEZA EL HTML
@@ -31,7 +32,7 @@
 	//Botones de "submit"
 	$form['submit']['name'] = 'Iniciar';
 	$form['submit']['value'] = '';
-	$html['body'] = $html['body'] . make_form($form, false, ''); 
+	$html['body'] = $html['body'] . MakeForm::make(Formulario::formLogin()); //make_form($form, false, '');
 	if(isset($_SESSION[CampoSession::ERROR])){ //En caso de que exista un mensaje de error, imprimirlo y borrarlo
 		$html['body'] = $html['body'] . '<p class="error">' . $_SESSION[CampoSession::ERROR] . '</p>';
 		unset($_SESSION[CampoSession::ERROR]);

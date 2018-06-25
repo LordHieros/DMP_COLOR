@@ -1,5 +1,8 @@
 <?php
 
+include('TipoColumna.php');
+include('Tabla.php');
+
 final class Columna
 {
 

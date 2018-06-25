@@ -10,7 +10,7 @@ final class MakeForm
      * @throws Exception
      * @return string
      */
-    public static function makeForm($formulario)
+    public static function make($formulario)
     {
         $res = '<form action="' . $formulario->getAction() . '" method="' . $formulario->getMethod() . '">';
         $res = $res . "\n";
@@ -19,6 +19,21 @@ final class MakeForm
         $res = $res . "\n";
         $res = $res . '</form>';
         return $res;
+    }
+
+
+    /**
+     * Crea el botón de submit del formulario
+     *
+     * @param Formulario $formulario
+     * @return string
+     */
+    private static function makeSubmit($formulario)
+    {
+        $contenido = $formulario->getSubmit();
+        $contenido = self::makeButton('type="submit" name="' . $formulario->getSubmit() . '" value=""', $contenido);
+        $contenido = self::makeFieldset('class="form-group"', $contenido);
+        return $contenido;
     }
 
     /**
@@ -43,6 +58,7 @@ final class MakeForm
             $opcionesDiv = 'div class="tab-pane fade show active" id="v-pills-' . $item->getNombre() . '" role="tabpanel" aria-labelledby="v-pills-' . $item->getNombre() . '-tab"';
             $res = $res . self::makeDiv($opcionesDiv, $contenido);
         }
+        $res = $res . self::makeSubmit($formulario);
         $res = self::makeDiv('class="tab-content" id="v-pills-tabContent"', $res);
         $res = self::makeDiv('class = "col-9"', $res);
         return $res;
@@ -135,6 +151,18 @@ final class MakeForm
     }
 
     /**
+     * Crea un <button> con las opciones especificadas que contiene el string especificado
+     *
+     * @param string $opciones
+     * @param string $contenido
+     * @return string
+     */
+    private static function makeButton($opciones, $contenido)
+    {
+        return self::makeWrapper('button', $opciones, $contenido);
+    }
+
+    /**
      * Crea un <fieldset> con las opciones especificadas que contiene el string especificado
      *
      * @param string $opciones
@@ -161,7 +189,7 @@ final class MakeForm
         $res = $res . "\n";
         $res = $res . $contenido;
         $res = $res . "\n";
-        $res = $res . '</a>';
+        $res = $res . '</' . $wrap . '>';
         return $res;
     }
 

@@ -1,5 +1,8 @@
 <?php
 
+include('ItemFormulario.php');
+include('Modelo.php');
+
 final class Formulario
 {
 
@@ -14,6 +17,8 @@ final class Formulario
     private $method;
     
     private $modelo;
+
+    private $submit;
 
     /**
      * Devuelve los items del formulario
@@ -56,7 +61,7 @@ final class Formulario
     {
         return $this->legend;
     }
-    
+
     /**
      * Devuelve el method del formulario
      * post por defecto
@@ -66,6 +71,17 @@ final class Formulario
     function getMethod()
     {
         return $this->method;
+    }
+
+    /**
+     * Devuelve el nombre del botón de submit
+     * Enviar por defecto
+     *
+     * @return string
+     */
+    function getSubmit()
+    {
+        return $this->submit;
     }
     
     /**
@@ -93,6 +109,7 @@ final class Formulario
         $this->legend = null;
         $this->method = 'post';
         $this->modelo = $modelo;
+        $this->submit = 'Enviar';
     }
 
     private static $formLogin;
@@ -111,7 +128,9 @@ final class Formulario
             );
             $claves = array();
             self::$formLogin = new Formulario($items, $claves, Modelo::modeloUsuarios());
+            self::$formLogin->action = 'php/login.php';
             self::$formLogin->legend = 'Iniciar sesión';
+            self::$formLogin->submit = "Login";
         }
         return self::$formLogin;
     }
@@ -336,6 +355,6 @@ final class Formulario
      */
     public function makeHtml()
     {
-        return MakeForm::makeForm($this);
+        return MakeForm::make($this);
     }
 }
