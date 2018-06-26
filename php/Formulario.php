@@ -323,7 +323,7 @@ final class Formulario
      */
     private static function grupoLogin()
     {
-        $etiqueta = 'Login';
+        $etiqueta = 'Iniciar sesión';
         $nest = array(
             ItemFormulario::nombreUsuario(),
             ItemFormulario::contrasenha()
