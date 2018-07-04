@@ -1,5 +1,10 @@
 <?php
-	include('php/header.php');
+    include('php/header.php');
+    include("php/Login.php");
+    include('php/Comprobaciones.php');
+
+    Login::checkLogin();
+
 	$tmp1=$_SESSION[CampoSession::USUARIO]; //Cuando se entra a panel se borran los datos de sesión que no sean nombre de usuario, estado de administrador y mensaje de error
 	$tmp2=$_SESSION[CampoSession::ADMINISTRADOR];
 	if(isset($_SESSION[CampoSession::ERROR])) $tmp3=$_SESSION[CampoSession::ERROR];
@@ -13,6 +18,9 @@
 	}
 	unset($tmp1);
 	unset($tmp2);
+
+
+	Comprobaciones::compruebaUsuario();
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página

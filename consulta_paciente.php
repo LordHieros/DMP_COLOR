@@ -1,7 +1,9 @@
 <?php
-	include('php/header.php');
-	
-	comprueba_nombre();
+    include_once('php/header.php');
+    include_once('php/Comprobaciones.php');
+    include_once("php/AccesoBD.php");
+
+    Comprobaciones::compruebaNombre();
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
@@ -9,10 +11,7 @@
 	//Creamos el cuerpo
 	$html['body'] = basic_body();
 	//Mostrar pacientes
-	require 'php/Conexion.php';
-	$stmt = Conexion::getpdo()->prepare('SELECT NASI FROM Filiaciones WHERE Usuarios_nombre=:nombre;');
-	$res=$stmt->execute(['nombre' => $_SESSION[CampoSession::NOMBRE]]);
-	$datos['resultado'] = $stmt->fetchAll();
+    $datos['resultado'] = AccesoBD::getFiliaciones();
 	$datos['titulo'] = 'Pacientes:';
 	$datos['clave'] = 'Claves_NASI';
 	$datos['destino'] = 'consulta_filiacion.php';

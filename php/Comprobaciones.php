@@ -1,12 +1,22 @@
 <?php
 
+include_once("CampoServer.php");
+
 final class Comprobaciones
 {
 
     //FUNCIONES 
+    //Se comprueba si se ha elegido usuario
+    static function compruebaUsuario(){
+        if(!isset($_SESSION[CampoSession::USUARIO])){ //
+            header('location: ' . $_SERVER[CampoServer::DOCUMENT_ROOT] . '/index.php');
+        }
+    }
+
     //Se comprueba si se ha elegido nombre
     static function compruebaNombre(){
-        if(!$_SESSION[CampoSession::USUARIO]){ //Si no se es admin se asigna el nombre de usuario como nombre de cirujano
+        self::compruebaUsuario();
+        if(!$_SESSION[CampoSession::ADMINISTRADOR]){ //Si no se es admin se asigna el nombre de usuario como nombre de cirujano
             $_SESSION[CampoSession::NOMBRE] = $_SESSION[CampoSession::USUARIO];
         }
         else if (isset($_POST[CampoSession::NOMBRE])){ //Si se llega como admin con un nombre en POST se añade ese nombre a la sesión

@@ -128,7 +128,7 @@ final class Formulario
             );
             $claves = array();
             self::$formLogin = new Formulario($items, $claves, Modelo::modeloUsuarios());
-            self::$formLogin->action = 'php/login.php';
+            self::$formLogin->action = 'Panel.php';
             self::$formLogin->legend = 'Iniciar sesión';
             self::$formLogin->submit = "Login";
         }
@@ -355,6 +355,6 @@ final class Formulario
      */
     public function makeHtml()
     {
-        return MakeForm::make($this);
+        return FormConstructor::make($this);
     }
 }

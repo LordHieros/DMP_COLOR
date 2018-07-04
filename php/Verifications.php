@@ -1,4 +1,5 @@
 <?php
+final class Verifications{
 
 	function verifica_diagnostico(){
 		$nasi=$_SESSION[CampoSession::NASI];
@@ -13,4 +14,5 @@
 		return 'OK';
 	}
 
+}
 ?>

@@ -115,16 +115,14 @@ final class DatosTabla
     /**
      * Añade el campo a la columna correspondiente
      *
-     * @param
-     *            $campo
+     * @param string $campo
      * @param Columna $columna
      * @throws Exception
      */
     public function addCampo($campo, $columna)
     {
         if ($this->checkColumnaCampo($columna)) {
-            $newCampo[$columna->getNombre()] = $campo;
-            array_merge($this->campos, $newCampo);
+            $this->campos[$columna->getNombre()] = $campo;
         } else {
             throw new Exception("La columna " . $columna->getNombre() . " introducida no es uno de los campos de la tabla " . $this->getTabla()->getNombreTabla());
         }
@@ -156,9 +154,9 @@ final class DatosTabla
     {
         $claves = array();
         if (array_key_exists(CampoSession::NOMBRE, $_SESSION)) {
-            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION(CampoSession::NOMBRE);
+            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION[CampoSession::NOMBRE];
         } else if (array_key_exists(CampoSession::USUARIO, $_SESSION)) {
-            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION(CampoSession::USUARIO);
+            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION[CampoSession::USUARIO];
         }
         foreach (CampoSession::getPKs() as $PK) {
             if (array_key_exists($PK, $_SESSION)) {

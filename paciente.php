@@ -1,8 +1,10 @@
 <?php
 	include('php/header.php');
 	include('php/make_form.php');
-	
-	comprueba_nombre();
+    include_once('php/Comprobaciones.php');
+    include_once("php/AccesoBD.php");
+
+    Comprobaciones::compruebaNombre();
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
 	$html['titulo'] = 'Crear NASI de paciente para ' . $_SESSION[CampoSession::NOMBRE];

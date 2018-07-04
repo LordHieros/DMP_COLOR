@@ -1,14 +1,14 @@
 <?php
-    include "CampoSession.php";
+    include_once "CampoSession.php";
 	if(!isset($_SESSION)){
 		session_start(); // Starting Session
 	}
-	if(!array_key_exists(CampoSession::USUARIO, $_SESSION)){ //Si no se ha iniciado sesión
-		if(basename($_SERVER['PHP_SELF'])!='index.php'){  //Si no se está en el index se manda al index con un mensaje de error
-			$_SESSION[CampoSession::ERROR]='No se ha iniciado sesión o la sesión ha caducado';
-			header('location: ' . $_SERVER["DOCUMENT_ROOT"] . '/index.php'); 
-		}
-	}
+	//if(!array_key_exists(CampoSession::USUARIO, $_SESSION)){ //Si no se ha iniciado sesión
+	//	if(basename($_SERVER['PHP_SELF'])!='index.php'){  //Si no se está en el index se manda al index con un mensaje de error
+	//		$_SESSION[CampoSession::ERROR]='No se ha iniciado sesión o la sesión ha caducado';
+	//		header('location: ' . $_SERVER["DOCUMENT_ROOT"] . '/index.php');
+	//	}
+	//}
 	
 	//Mirar
 	function make_boton_post($nombre, $objetivo, $valor, $mensaje, $opt){
@@ -139,7 +139,7 @@
 			}
 			$datos[$i]['objetivo'] = $datos['destino'];
 			$datos[$i]['tipo'] = 'post';
-			$datos[$i]['valor'] = $datos['resultado'][$i][$datos['clave']];
+			$datos[$i]['valor'] = $datos['resultado'][$i];
 		}
 		unset($datos['nombre']);
 		unset($datos['clave']);

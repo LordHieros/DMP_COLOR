@@ -1,4 +1,7 @@
 <?php
+include_once ("Tabla.php");
+include_once ("DatosTabla.php");
+include_once ("Conexion.php");
 
 final class AccesoBD
 {
@@ -203,7 +206,7 @@ final class AccesoBD
      */
     private static function makeSelect($tabla, $itemsToSelect, $datos)
     {
-        $statement = 'SELECT ' . $itemsToSelect . 'FROM ' . $tabla->getNombreTabla();
+        $statement = 'SELECT ' . $itemsToSelect . ' FROM ' . $tabla->getNombreTabla();
         return $statement . self::makeWhere($tabla, $datos);
     }
 
@@ -265,16 +268,67 @@ final class AccesoBD
      */
     private static function makeWhere($tabla, $datos)
     {
-        $statement = ' WHERE ';
-        $wheres = null;
-        foreach ($tabla->getClaves() as $clave) {
-            $wheres[] = $clave->getColumna() . ' = ' . $datos->getClaves()[$clave->getNombre()];
-        }
-        $statement = $statement . $wheres[0];
-        for ($i = 1; $i < sizeof($wheres); $i ++) {
-            $statement = $statement . ' AND ' . $wheres[$i];
+        $statement = '';
+        if ($datos != null) {
+            foreach ($tabla->getClaves() as $clave) {
+                if (array_key_exists($clave->getNombre(), $datos->getClaves())) {
+                    $wheres[] = $clave->getColumna() . ' = "' . $datos->getClaves()[$clave->getNombre()] . '"';
+                }
+            }
+            foreach ($tabla->getCampos() as $clave) {
+                if (array_key_exists($clave->getNombre(), $datos->getCampos())) {
+                    $wheres[] = $clave->getColumna() . ' = "' . $datos->getCampos()[$clave->getNombre()] . '"';
+                }
+            }
+            if (!empty($wheres)) {
+                $statement = ' WHERE ' . $statement . $wheres[0];
+                for ($i = 1; $i < sizeof($wheres); $i++) {
+                    $statement = $statement . ' AND ' . $wheres[$i];
+                }
+            }
         }
         return $statement . ';';
+    }
+
+    /**
+     * Devuelve todos los items clave de la tabla, sin where
+     *
+     * @param Tabla $tabla
+     * @param Columna $clave
+     * @param DatosTabla $datos
+     * @return string[]
+     */
+    private static function getAll($tabla, $clave, $datos){
+        $res = array();
+        $stmt = Conexion::getpdo()->prepare(self::makeSelect($tabla, $clave->getColumna(), $datos));
+        $stmt->execute();
+        foreach($stmt->fetchAll() as $item){
+            $res[] = $item[$clave->getColumna()];
+        }
+        return $res;
+    }
+
+    /**
+     * Cevuelve lista e usuarios
+     *
+     * @return string[]
+     */
+    public static function getUsuarios(){
+        return self::getAll(Tabla::Usuarios(), Columna::nombreUsuario(), null);
+    }
+
+    /**
+     * Cevuelve lista e usuarios
+     *
+     * @return string[]
+     */
+    public static function getFiliaciones(){
+        $datos = new DatosTabla(Tabla::Filiaciones());
+        try {
+            $datos->addCampo($_SESSION[CampoSession::NOMBRE], Columna::nombreUsuario());
+        } catch (Exception $e) {
+        }
+        return self::getAll(Tabla::Filiaciones(), Columna::nasi(), $datos);
     }
 
     /**

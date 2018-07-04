@@ -1,7 +1,9 @@
 <?php
-	include('php/header.php');
-	
-	comprueba_nombre();
+    include_once('php/header.php');
+    include_once('php/Comprobaciones.php');
+    include_once("php/AccesoBD.php");
+
+    Comprobaciones::compruebaNombre();
 	if(isset($_SESSION[CampoSession::NOMBRE])){ header("location: consulta_paciente.php"); }
 	
 	//EMPIEZA EL HTML
@@ -14,10 +16,7 @@
 		unset($_SESSION[CampoSession::ERROR]);
 	}
 	//Mostrar usuarios
-	require 'php/Conexion.php';
-	$stmt = Conexion::getpdo()->prepare('SELECT nombre FROM Usuarios;');
-	$res=$stmt->execute();
-	$datos['resultado'] = $stmt->fetchAll();
+	$datos['resultado'] = AccesoBD::getUsuarios();
 	$datos['titulo'] = 'Usuarios:';
 	$datos['clave'] = 'nombre';
 	$datos['destino'] = 'consulta_paciente.php';

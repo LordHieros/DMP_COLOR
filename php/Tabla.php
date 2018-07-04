@@ -1,5 +1,7 @@
 <?php
 
+include_once("Columna.php");
+
 final class Tabla
 {
 

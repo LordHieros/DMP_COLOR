@@ -1,7 +1,7 @@
 <?php
 
-include('TipoColumna.php');
-include('Tabla.php');
+include_once('TipoColumna.php');
+include_once('Tabla.php');
 
 final class Columna
 {
