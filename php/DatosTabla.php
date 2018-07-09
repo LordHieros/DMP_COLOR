@@ -114,12 +114,13 @@ final class DatosTabla
 
     /**
      * Añade el campo a la columna correspondiente
+     * Si ya existe, lo reemplaza
      *
      * @param string $campo
      * @param Columna $columna
      * @throws Exception
      */
-    public function addCampo($campo, $columna)
+    public function setCampo($campo, $columna)
     {
         if ($this->checkColumnaCampo($columna)) {
             $this->campos[$columna->getNombre()] = $campo;

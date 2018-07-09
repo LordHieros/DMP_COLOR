@@ -29,16 +29,16 @@ final class AccesoBD
                 foreach ($tabla->getCampos() as $campo) {
                     if ($campo->getTipo() === TipoColumna::multString()) {
                         foreach ($resultado as $unResultado) {
-                            $res->addCampo($unResultado[$campo->getColumna()], $campo);
+                            $res->setCampo($unResultado[$campo->getColumna()], $campo);
                         }
                     } else if ($campo->getTipo() !== TipoColumna::bool()) {
                         if ($resultado[0][$campo->getColumna()] == 1) {
-                            $res->addCampo(true, $campo);
+                            $res->setCampo(true, $campo);
                         } else {
-                            $res->addCampo(false, $campo);
+                            $res->setCampo(false, $campo);
                         }
                     } else {
-                        $res->addCampo($resultado[0][$campo->getColumna()], $campo);
+                        $res->setCampo($resultado[0][$campo->getColumna()], $campo);
                     }
                 }
             } else {
@@ -269,66 +269,141 @@ final class AccesoBD
     private static function makeWhere($tabla, $datos)
     {
         $statement = '';
-        if ($datos != null) {
-            foreach ($tabla->getClaves() as $clave) {
-                if (array_key_exists($clave->getNombre(), $datos->getClaves())) {
-                    $wheres[] = $clave->getColumna() . ' = "' . $datos->getClaves()[$clave->getNombre()] . '"';
-                }
+        foreach ((array)$tabla->getClaves() as $clave) {
+            if (array_key_exists($clave->getNombre(), $datos->getClaves())) {
+                $wheres[] = $clave->getColumna() . ' = "' . $datos->getClaves()[$clave->getNombre()] . '"';
             }
-            foreach ($tabla->getCampos() as $clave) {
-                if (array_key_exists($clave->getNombre(), $datos->getCampos())) {
-                    $wheres[] = $clave->getColumna() . ' = "' . $datos->getCampos()[$clave->getNombre()] . '"';
-                }
+        }
+        foreach ((array)$tabla->getCampos() as $clave) {
+            if (array_key_exists($clave->getNombre(), $datos->getCampos())) {
+                $wheres[] = $clave->getColumna() . ' = "' . $datos->getCampos()[$clave->getNombre()] . '"';
             }
-            if (!empty($wheres)) {
-                $statement = ' WHERE ' . $statement . $wheres[0];
-                for ($i = 1; $i < sizeof($wheres); $i++) {
-                    $statement = $statement . ' AND ' . $wheres[$i];
-                }
+        }
+        if (!empty($wheres)) {
+            $statement = ' WHERE ' . $statement . $wheres[0];
+            for ($i = 1; $i < sizeof($wheres); $i++) {
+                $statement = $statement . ' AND ' . $wheres[$i];
             }
         }
         return $statement . ';';
     }
 
     /**
-     * Devuelve todos los items clave de la tabla, sin where
+     * Devuelve todos los items de la tabla, sin where
      *
-     * @param Tabla $tabla
-     * @param Columna $clave
      * @param DatosTabla $datos
+     * @throws Exception
+     * @return array[]
+     */
+    private static function getAll($datos){
+        return self::executeStatement(self::makeSelect($datos->getTabla(), '*', $datos))->fetchAll();
+    }
+
+    /**
+     * Devuelve lista de usuarios
+     *
+     * @throws Exception
      * @return string[]
      */
-    private static function getAll($tabla, $clave, $datos){
+    public static function getUsuarios(){
         $res = array();
-        $stmt = Conexion::getpdo()->prepare(self::makeSelect($tabla, $clave->getColumna(), $datos));
-        $stmt->execute();
-        foreach($stmt->fetchAll() as $item){
-            $res[] = $item[$clave->getColumna()];
+        $datos = new DatosTabla(Tabla::Usuarios());
+        foreach(self::getAll($datos) as $item){
+            $res[] = $item[Columna::nombreUsuario()->getColumna()];
         }
         return $res;
     }
 
     /**
-     * Cevuelve lista e usuarios
+     * Devuelve lista de filiaciones de pacientes
      *
-     * @return string[]
-     */
-    public static function getUsuarios(){
-        return self::getAll(Tabla::Usuarios(), Columna::nombreUsuario(), null);
-    }
-
-    /**
-     * Cevuelve lista e usuarios
-     *
+     * @throws Exception
      * @return string[]
      */
     public static function getFiliaciones(){
         $datos = new DatosTabla(Tabla::Filiaciones());
-        try {
-            $datos->addCampo($_SESSION[CampoSession::NOMBRE], Columna::nombreUsuario());
-        } catch (Exception $e) {
+        $datos->setCampo($_SESSION[CampoSession::NOMBRE], Columna::nombreUsuario());
+        $res = array();
+        foreach(self::getAll($datos) as $item){
+            $res[] = $item[Columna::nasi()->getColumna()];
         }
-        return self::getAll(Tabla::Filiaciones(), Columna::nasi(), $datos);
+        return $res;
+    }
+
+    /**
+     * Devuelve lista de diagnosticos del paciente
+     *
+     * @throws Exception
+     * @return string[]
+     */
+    public static function getDiagnosticos(){
+        $datos = new DatosTabla(Tabla::Diagnosticos());
+        $datos->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
+        $causas = new DatosTabla(Tabla::CausasIntervencion());
+        $causas->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
+        $res = array();
+        foreach(self::getAll($datos) as $item){
+            $entry = $item[Columna::fechaDiagnostico()->getColumna()];
+            $causas->setCampo($entry, Columna::fechaDiagnostico());
+            $resCausas = self::getAll($causas);
+            if(empty($resCausas)) {
+                $entry = $entry . ' - Sin datos';
+            }
+            else{
+                $entry = $entry . ' - Causas de intervención: ';
+                $first = true;
+                foreach ($resCausas[Columna::causasIntervencion()->getColumna()] as $causa){
+                    if(!$first){
+                        $entry = $entry . ', ';
+                    }
+                    else{
+                        $first = false;
+                    }
+                    $entry = $entry . $causa;
+                }
+            }
+            $res[] = $entry;
+        }
+        return $res;
+    }
+
+    /**
+     * Devuelve lista de intervenciones del paciente
+     *
+     * @throws Exception
+     * @return string[]
+     */
+    public static function getIntervenciones(){
+        $datos = new DatosTabla(Tabla::Intervenciones());
+        $datos->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
+        $datos->setCampo($_SESSION[CampoSession::FECHA_DIAGNOSTICO], Columna::fechaDiagnostico());
+        $tipos = new DatosTabla(Tabla::TiposIntervencion());
+        $tipos->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
+        $tipos->setCampo($_SESSION[CampoSession::FECHA_DIAGNOSTICO], Columna::fechaDiagnostico());
+        $res = array();
+        foreach(self::getAll($datos) as $item){
+            $entry = $item[Columna::fechaIntervencion()->getColumna()];
+            $tipos->setCampo($entry, Columna::fechaIntervencion());
+            $resCausas = self::getAll($tipos);
+            if(empty($resCausas)) {
+                $entry = $entry . ' - Sin datos';
+            }
+            else{
+                $entry = $entry . ' - Tipos de intervención: ';
+                $first = true;
+                foreach ($resCausas[Columna::tiposIntervencion()->getColumna()] as $tipo){
+                    if(!$first){
+                        $entry = $entry . ', ';
+                    }
+                    else{
+                        $first = false;
+                    }
+                    $entry = $entry . $tipo;
+                }
+            }
+            $res[] = $entry;
+        }
+        return $res;
     }
 
     /**

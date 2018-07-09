@@ -236,7 +236,7 @@ final class ItemFormulario
                     if (! array_key_exists($columna, $datos)) {
                         $datos[$columna] = DatosTabla::makeWithSessionKeys($this->getTabla());
                     }
-                    $datos[$columna]->addCampo($valor, $this->getColumna());
+                    $datos[$columna]->setCampo($valor, $this->getColumna());
                 }
             } else if ($this->getTipo() === TipoItem::siNo() || $this->getTipo() === TipoItem::metastasis()) {
                 $checkSub = false;
