@@ -1,7 +1,6 @@
 <?php
 	include('header.php');
 	include('use_database.php');
-	include('Verifications.php');
 	
 	//Inicializar variables de sesion
 	$nasi=$_SESSION[CampoSession::NASI];
@@ -442,5 +441,5 @@
 			unset($claves);
 		}
 	}
-	header("location: ../consulta_diagnostico.php");
+	header("location: ../consultaDiagnostico.php");
 ?>

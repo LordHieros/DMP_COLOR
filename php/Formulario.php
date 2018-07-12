@@ -1,7 +1,8 @@
 <?php
 
-include('ItemFormulario.php');
-include('Modelo.php');
+include_once('ItemFormulario.php');
+include_once('Modelo.php');
+include_once('FormConstructor.php');
 
 final class Formulario
 {
@@ -128,11 +129,54 @@ final class Formulario
             );
             $claves = array();
             self::$formLogin = new Formulario($items, $claves, Modelo::modeloUsuarios());
-            self::$formLogin->action = 'Panel.php';
             self::$formLogin->legend = 'Iniciar sesión';
             self::$formLogin->submit = "Login";
         }
         return self::$formLogin;
+    }
+
+    private static $formNHC;
+
+    /**
+     * Formulario de Login
+     * Singleton
+     *
+     * @return Formulario
+     */
+    static function formNHC()
+    {
+        if (! isset(self::$formNHC)) {
+            $items = array(
+                self::grupoNHC()
+            );
+            $claves = array();
+            self::$formNHC = new Formulario($items, $claves, Modelo::modeloFiliaciones());
+            self::$formNHC->legend = 'Consultar NHC';
+            self::$formNHC->submit = "NHC";
+        }
+        return self::$formNHC;
+    }
+
+    private static $formCreaDiagnostico;
+
+    /**
+     * Formulario de creación de diagnóstico
+     * Singleton
+     *
+     * @return Formulario
+     */
+    static function formCreaDiagnostico()
+    {
+        if (! isset(self::$formCreaDiagnostico)) {
+            $items = array(
+                self::grupoCreaDiagnostico()
+            );
+            $claves = array();
+            self::$formCreaDiagnostico = new Formulario($items, $claves, Modelo::modeloDiagnostico());
+            self::$formCreaDiagnostico->legend = 'Crear diagnóstico';
+            self::$formCreaDiagnostico->submit = "creaDiagnostico";
+        }
+        return self::$formCreaDiagnostico;
     }
 
     private static $formDiagnostico;
@@ -156,10 +200,31 @@ final class Formulario
                 CampoSession::FECHA_DIAGNOSTICO
             );
             self::$formDiagnostico = new Formulario($items, $claves, Modelo::modeloDiagnostico());
-            self::$formDiagnostico->action = 'php/diagnostico_datos.php';
             self::$formDiagnostico->legend = 'Diagnóstico';
         }
         return self::$formDiagnostico;
+    }
+
+    private static $formCreaIntervencion;
+
+    /**
+     * Formulario de creación de Intervención
+     * Singleton
+     *
+     * @return Formulario
+     */
+    static function formCreaIntervencion()
+    {
+        if (! isset(self::$formCreaIntervencion)) {
+            $items = array(
+                self::grupoCreaIntervencion()
+            );
+            $claves = array();
+            self::$formCreaIntervencion = new Formulario($items, $claves, Modelo::modeloIntervencion());
+            self::$formCreaIntervencion->legend = 'Crear Intervención';
+            self::$formCreaIntervencion->submit = "creaIntervencion";
+        }
+        return self::$formCreaIntervencion;
     }
 
     private static $formIntervencion;
@@ -184,7 +249,6 @@ final class Formulario
                 CampoSession::FECHA_INTERVENCION
             );
             self::$formIntervencion = new Formulario($items, $claves, Modelo::modeloIntervencion());
-            self::$formIntervencion->action = 'php/intervencion_datos.php';
             self::$formIntervencion->legend = 'Intervención';
         }
         return self::$formIntervencion;
@@ -332,29 +396,91 @@ final class Formulario
     }
 
     /**
+     * Crea el grupo de items de NHC
+     *
+     * @return ItemFormulario
+     */
+    private static function grupoNHC()
+    {
+        $etiqueta = 'Consulta NHC';
+        $nest = array(
+            ItemFormulario::nhc()
+        );
+        return ItemFormulario::makeGroup($etiqueta, $nest);
+    }
+
+    /**
+     * Crea el grupo de items de creación de diagnóstico
+     *
+     * @return ItemFormulario
+     */
+    private static function grupoCreaDiagnostico()
+    {
+        $etiqueta = 'Crear diagnóstico';
+        $nest = array(
+            ItemFormulario::fechaDiagnostico()
+        );
+        return ItemFormulario::makeGroup($etiqueta, $nest);
+    }
+
+    /**
+     * Crea el grupo de items de de creación de intervención
+     *
+     * @return ItemFormulario
+     */
+    private static function grupoCreaIntervencion()
+    {
+        $etiqueta = 'Crear intervención';
+        $nest = array(
+            ItemFormulario::fechaIntervencion()
+        );
+        return ItemFormulario::makeGroup($etiqueta, $nest);
+    }
+
+    /**
      * Devuelve el array de datos correspondiente al formulario, cogiendo los datos de POST
-     * null si no hay datos en post correspondientes
+     * array vacio si no hay datos en post correspondientes
      *
      * @throws Exception
-     * @return DatosTabla[] | NULL
+     * @return DatosTabla[]
      */
     public function makeDatos()
     {
         $datos = array();
         foreach ($this->getItems() as $item) {
-            $datos = $item->makeDatos($datos);
+            $datos = $item->makeDatos($datos, false);
         }
         return $datos;
     }
-    
+
     /**
      * Crea el html del formulario
      *
      * @throws Exception
      * @return string
      */
-    public function makeHtml()
+    public function makeForm()
     {
         return FormConstructor::make($this);
+    }
+
+    /**
+     * Crea una vista en html del formulario
+     *
+     * @throws Exception
+     * @return string
+     */
+    public function makeView()
+    {
+        return FormConstructor::view($this);
+    }
+
+    /**
+     * Guarda los datos del formulario en la base de datos
+     *
+     * @throws Exception
+     */
+    public function saveToDatabase(){
+        Modelo::saveModelo($this->getModelo(), $this->makeDatos());
     }
 }

@@ -62,5 +62,5 @@
 		$datos[] = $peso;
 		use_database($editar, $base, $claves, $datos, $claves_principal, $datos_principal);
 	}
-	header("location: ../consulta_filiacion.php");
+	header("location: ../consultaFiliacion.php");
 ?>

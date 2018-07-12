@@ -25,6 +25,6 @@
 				}
 			}
 		}
-		header("location: ../consulta_usuario.php");
+		header("location: ../seleccionUsuario.php");
 	}
 ?>

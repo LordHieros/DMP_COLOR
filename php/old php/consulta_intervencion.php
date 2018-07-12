@@ -295,7 +295,7 @@
 	}
 	//Crear las opciones
 	$datos[0]['tipo'] = 'redirección';
-	$datos[0]['objetivo'] = 'consulta_diagnostico.php';
+	$datos[0]['objetivo'] = 'consultaDiagnostico.php';
 	$datos[0]['nombre'] = 'Volver';
 	if($editable){ //Si es editable se puede editar o cerrar el expediente
 		$datos[1]['tipo'] = 'redirección';

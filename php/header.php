@@ -1,5 +1,6 @@
 <?php
     include_once "CampoSession.php";
+    include_once "Utils.php";
 	if(!isset($_SESSION)){
 		session_start(); // Starting Session
 	}
@@ -12,7 +13,11 @@
 	
 	//Mirar
 	function make_boton_post($nombre, $objetivo, $valor, $mensaje, $opt){
-		return '<a' . $opt . '><form action="' . $objetivo . '" method="post">
+	    $action = '';
+	    if(!empty($objetivo)){
+            $action = 'action="' . $objetivo . '"';
+        }
+		return '<a' . $opt . '><form ' . $action . ' method="post">
 		<input type="hidden" name="' . $nombre . '" value="' . $valor . '">
 		<input type="submit" class="looklikelink" value="' . $mensaje . '">
 		</form></a>
@@ -21,7 +26,7 @@
 	
 	//Imprimir botones que redirigen a la página objetivo
 	function make_boton_redireccion($nombre, $objetivo, $opt){
-		return '<a href="' . $objetivo . '"' . $opt . '>
+		return '<a href="' . $objetivo . '" ' . $opt . '>
 		' . $nombre . '
 		</a>
 		';
@@ -31,6 +36,7 @@
 	function make_opciones($datos){
 		$opciones = '';
 		$mainclass = '';
+		$vacio = '';
 		if(array_key_exists('nav', $datos)){ //Si hay opciones comunes se guardan en variable y borran
 			$nav = $datos['nav'];
 			unset($datos['nav']);
@@ -130,7 +136,8 @@
 	
 	//Para las consultas en las que haya que elegir una opción a la que ir, introducir resultado de la base de datos, clave de la variable que se desea imprimir, destino al que hay que ir en caso de hacer click y mensaje en caso de que no haya resultados. Pasa los parámetros a make opciones
 	function make_eleccion($datos) {
-		for($i=0; $i<count($datos['resultado']); $i++){
+        $i=0;
+	    foreach (array_keys($datos['resultado']) as $clave){
 			if(array_key_exists('nombre', $datos)){//En caso de haber especificado un nombre para el post se carga
 				$datos[$i]['nombre'] = $datos['nombre'];
 			}
@@ -139,7 +146,9 @@
 			}
 			$datos[$i]['objetivo'] = $datos['destino'];
 			$datos[$i]['tipo'] = 'post';
-			$datos[$i]['valor'] = $datos['resultado'][$i];
+            $datos[$i]['valor'] = $clave;
+            $datos[$i]['mensaje'] = $datos['resultado'][$clave];
+            $i++;
 		}
 		unset($datos['nombre']);
 		unset($datos['clave']);
@@ -312,27 +321,11 @@
 		return $TNM;
 	}
 	
-	//Imprime mensajes en cabecera
-	function basic_body(){
-		if(isset($_SESSION[CampoSession::ERROR])){
-			$basic = '<h4 class="error">' . $_SESSION[CampoSession::ERROR] . '</h4>';
-			unset($_SESSION[CampoSession::ERROR]);
-			unset($_SESSION[CampoSession::MENSAJE]);
-		}
-		else if(isset($_SESSION[CampoSession::MENSAJE])){
-			$basic = '<h4>' . $_SESSION[CampoSession::MENSAJE] . '</h4>';
-			unset($_SESSION[CampoSession::MENSAJE]);
-		}
-		else{
-			$basic = '';
-		}
-		return $basic;
-	}
-	
 	//Dado un título, un cuerpo y un encabezado opcional crea la arquitectura de la página
 	function make_html($html){
 		//Antiguo estilo, sustituído por bootstrap js/css <link rel="stylesheet" type="text/css" href="./css/Estilo.css">
 		//El <div> container fluid tambien es parte de bootstrap
+        $corrections = './css/BootstrapCorrections.css'; //Para evitar warnings
 		$bootstrap = '
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
@@ -340,7 +333,7 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" type="text/css" href="./css/BootstrapCorrections.css">';
+		<link rel="stylesheet" type="text/css" href="' . $corrections . '">';
 		$pagina = '<!DOCTYPE html>
 		<html lang="es">
 		<head>
@@ -365,6 +358,6 @@
 		'</div>
 		</body>
 		</html>';
+        Utils::console_log('SESSION: ' . print_r($_SESSION, true));
 		return $pagina;
 	}
-?>

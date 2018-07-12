@@ -7,7 +7,7 @@
 	$resultado = $stmt->fetchAll();
 	if(count($resultado) > 0){
 		$_SESSION[CampoSession::ERROR] = 'Ya existe una intervencion programada para el dia ' . $_POST["fecha"] . ' para este diagnóstico';
-		header("location: ../consulta_diagnostico.php");
+		header("location: ../consultaDiagnostico.php");
 	}
 	else{
 		$stmt = Conexion::getpdo()->prepare('INSERT INTO Intervenciones(Filiaciones_NASI, Diagnosticos_fecha, fecha, cerrado) VALUES (:nasi, :fechaDiagnostico, :fecha, :cerrado);');

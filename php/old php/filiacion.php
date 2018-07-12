@@ -10,7 +10,7 @@
 	$resultado = $stmt->fetchAll();
 	if (count($resultado) > 0) { //Comprobar si existe paciente
 		if($resultado[0]["cerrado"]==1){ //Si se llega a un expediente cerrado se redirige a la consulta
-			header("location: consulta_filiacion.php");
+			header("location: consultaFiliacion.php");
 			die;
 		}
 		else{
@@ -75,7 +75,7 @@
 	$html['body'] = $html['body'] . make_form($form, $editar, $resultado); 
 	//Crear las opciones
 	$datos[0]['tipo'] = 'redirección';
-	$datos[0]['objetivo'] = 'consulta_filiacion.php';
+	$datos[0]['objetivo'] = 'consultaFiliacion.php';
 	$datos[0]['nombre'] = 'Volver';
 	$html['body'] = $html['body'] . make_navbar($datos);
 	unset($datos);

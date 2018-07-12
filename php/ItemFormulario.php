@@ -1,8 +1,8 @@
 <?php
 
-include('Columna.php');
-include('TipoItem.php');
-include('DatosTabla.php');
+include_once('Columna.php');
+include_once('TipoItem.php');
+include_once('DatosTabla.php');
 
 final class ItemFormulario
 {
@@ -46,8 +46,9 @@ final class ItemFormulario
      */
     function getEtiqueta()
     {
-        if ($this->etiqueta == null) {
-            $this->etiqueta = ucfirst($this->nombre);
+        if (empty($this->etiqueta)) {
+            require_once 'Utils.php';
+            $this->etiqueta = ucfirst($this->getNombre());
         }
         return $this->etiqueta;
     }
@@ -213,30 +214,47 @@ final class ItemFormulario
      * Excepcion en caso de problemas en la carga de datos.
      *
      * @param DatosTabla[] $datos
+     * @param boolean $createEmpty
      * @throws Exception
      * @return DatosTabla[]
      */
-    public function makeDatos($datos)
+    public function makeDatos($datos, $createEmpty)
     {
         $checkSub = true;
         if ($this->getTipo() !== TipoItem::agrupacion()) {
-            if (isset($_POST[$this->getNombrePost()])) {
-                $valor = $_POST[$this->getNombrePost()];
+            if(array_key_exists($this->getNombre(), $_POST)){
+                $valor = $_POST[$this->getNombre()];
+            }
+            if (!empty($valor)) {
                 if ($this->getTipo() === TipoItem::siNo()) {
                     $checkSub = ($valor == TipoItem::SI);
+                    if($checkSub){
+                        $createEmpty = true;
+                    }
                 } else if ($this->getTipo() === TipoItem::metastasis()) {
                     if ($valor != TipoItem::NO) {
                         $datos[$this->getTabla()->getNombreTabla()] = DatosTabla::makeWithSessionKeys($this->getTabla());
                     }
                     $checkSub = ($valor == TipoItem::CON_CIRUGIA);
-                } else {
-                    $columna = $this->getColumna()
-                        ->getTabla()
-                        ->getNombreTabla();
-                    if (! array_key_exists($columna, $datos)) {
-                        $datos[$columna] = DatosTabla::makeWithSessionKeys($this->getTabla());
+                    if($checkSub){
+                        $createEmpty = true;
                     }
-                    $datos[$columna]->setCampo($valor, $this->getColumna());
+                } else {
+                    $tabla = $this->getTabla()
+                        ->getNombreTabla();
+                    if (! array_key_exists($tabla, $datos)) {
+                        $datos[$tabla] = DatosTabla::makeWithSessionKeys($this->getTabla());
+                    }
+                    $datos[$tabla]->setCampo($valor, $this->getColumna());
+                }
+            } else if($createEmpty){
+                $tabla = $this->getTabla()
+                    ->getNombreTabla();
+                if (! array_key_exists($tabla, $datos)) {
+                    $datos[$tabla] = DatosTabla::makeWithSessionKeys($this->getTabla());
+                }
+                if($this->getTipo() === TipoItem::date()){
+                    $datos[$tabla]->setCampo(TipoColumna::NO_DATE, $this->getColumna());
                 }
             } else if ($this->getTipo() === TipoItem::siNo() || $this->getTipo() === TipoItem::metastasis()) {
                 $checkSub = false;
@@ -244,7 +262,7 @@ final class ItemFormulario
         }
         if ($checkSub) {
             foreach ($this->getNest() as $subitem) {
-                $subitem->makeDatos($datos);
+                $datos = $subitem->makeDatos($datos, $createEmpty);
             }
         }
         return $datos;
@@ -276,7 +294,7 @@ final class ItemFormulario
      */
     static function nombreUsuario()
     {
-        if (! isset(self::$sexo)) {
+        if (! isset(self::$nombreUsuario)) {
             self::$nombreUsuario = new ItemFormulario();
             self::$nombreUsuario->columna = Columna::nombreUsuario();
             self::$nombreUsuario->tipo = TipoItem::text();
@@ -294,7 +312,7 @@ final class ItemFormulario
      */
     static function contrasenha()
     {
-        if (! isset(self::$sexo)) {
+        if (! isset(self::$contrasenha)) {
             self::$contrasenha = new ItemFormulario();
             self::$contrasenha->columna = Columna::contrasenha();
             self::$contrasenha->tipo = TipoItem::password();
@@ -303,7 +321,44 @@ final class ItemFormulario
         return self::$contrasenha;
     }
 
+    // Consulta NHC
+    private static $nhc;
+
+    /**
+     * Singleton de nhc
+     *
+     * @return ItemFormulario
+     */
+    static function nhc()
+    {
+        if (! isset(self::$nhc)) {
+            self::$nhc = new ItemFormulario();
+            self::$nhc->columna = Columna::nhc();
+            self::$nhc->tipo = TipoItem::text();
+            self::$nhc->etiqueta = 'NHC';
+        }
+        return self::$nhc;
+    }
+
     // Diagnóstico
+    private static $fechaDiagnostico;
+
+    /**
+     * Singleton de fechaDiagnostico
+     *
+     * @return ItemFormulario
+     */
+    static function fechaDiagnostico()
+    {
+        if (! isset(self::$fechaDiagnostico)) {
+            self::$fechaDiagnostico = new ItemFormulario();
+            self::$fechaDiagnostico->columna = Columna::fechaDiagnostico();
+            self::$fechaDiagnostico->tipo = TipoItem::date();
+            self::$fechaDiagnostico->etiqueta = 'Fecha del diagnóstico';
+        }
+        return self::$fechaDiagnostico;
+    }
+
     private static $sexo;
 
     /**
@@ -931,8 +986,8 @@ final class ItemFormulario
     {
         if (! isset(self::$hayTumoresSincronicos)) {
             self::$hayTumoresSincronicos = new ItemFormulario();
-            self::$hayTumoresSincronicos->columna = Columna::TumoresSincronicos();
-            self::$hayTumoresSincronicos->tipo = TipoItem::boolean();
+            self::$hayTumoresSincronicos->columna = Columna::tumoresSincronicos();
+            self::$hayTumoresSincronicos->tipo = TipoItem::siNo();
             self::$hayTumoresSincronicos->etiqueta = 'Tumor Sincrónico';
             self::$hayTumoresSincronicos->nest = array(
                 self::tumoresSincronicos()
@@ -1026,6 +1081,24 @@ final class ItemFormulario
     }
 
     // Intervencion
+    private static $fechaIntervencion;
+
+    /**
+     * Singleton de fechaIntervencion
+     *
+     * @return ItemFormulario
+     */
+    static function fechaIntervencion()
+    {
+        if (! isset(self::$fechaIntervencion)) {
+            self::$fechaIntervencion = new ItemFormulario();
+            self::$fechaIntervencion->columna = Columna::fechaIntervencion();
+            self::$fechaIntervencion->tipo = TipoItem::date();
+            self::$fechaIntervencion->etiqueta = 'Fecha de la intervención';
+        }
+        return self::$fechaIntervencion;
+    }
+
     private static $duracion;
 
     /**
@@ -1056,12 +1129,8 @@ final class ItemFormulario
         if (! isset(self::$hayListaEspera)) {
             self::$hayListaEspera = new ItemFormulario();
             self::$hayListaEspera->columna = Columna::fechaListaEspera();
-            self::$hayListaEspera->tipo = TipoItem::radio();
+            self::$hayListaEspera->tipo = TipoItem::siNo();
             self::$hayListaEspera->etiqueta = 'Puesto en lista de espera';
-            self::$hayListaEspera->valores = [
-                'No',
-                'Si'
-            ];
             self::hayListaEspera()->nest = array(
                 self::fechaListaEspera()
             );
@@ -1160,12 +1229,8 @@ final class ItemFormulario
         if (! isset(self::$hayUrgente)) {
             self::$hayUrgente = new ItemFormulario();
             self::$hayUrgente->tabla = Tabla::Urgentes();
-            self::$hayUrgente->tipo = TipoItem::radio();
-            self::$hayUrgente->etiqueta = 'Carácter';
-            self::$hayUrgente->valores = [
-                'Programada',
-                'Urgente'
-            ];
+            self::$hayUrgente->tipo = TipoItem::siNo();
+            self::$hayUrgente->etiqueta = 'Urgente';
             self::$hayUrgente->nest = array(
                 self::motivos_Urgente(),
                 self::peritonitisUrgente(),
@@ -1626,7 +1691,7 @@ final class ItemFormulario
         if (! isset(self::$hayComplicacionesIntraoperatorias)) {
             self::$hayComplicacionesIntraoperatorias = new ItemFormulario();
             self::$hayComplicacionesIntraoperatorias->tabla = Tabla::ComplicacionesIntraoperatorias();
-            self::$hayComplicacionesIntraoperatorias->tipo = TipoItem::radio();
+            self::$hayComplicacionesIntraoperatorias->tipo = TipoItem::siNo();
             self::$hayComplicacionesIntraoperatorias->etiqueta = 'Complicaciones intraoperatorias';
             self::$hayComplicacionesIntraoperatorias->nest = array(
                 self::complicacionesIntraoperatorias()
@@ -2074,7 +2139,7 @@ final class ItemFormulario
     {
         if (! isset(self::$factoresRiesgo)) {
             self::$factoresRiesgo = new ItemFormulario();
-            self::$factoresRiesgo->nombre = Columna::factoresRiesgo();
+            self::$factoresRiesgo->columna = Columna::factoresRiesgo();
             self::$factoresRiesgo->tipo = TipoItem::checkbox();
             self::$factoresRiesgo->etiqueta = 'Factores de riesgo histológico';
             self::$factoresRiesgo->valores = [

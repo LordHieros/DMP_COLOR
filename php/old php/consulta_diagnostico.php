@@ -304,7 +304,7 @@
 	//Crear las opciones
 	$i=0;
 	$datos[$i]['tipo'] = 'redirección';
-	$datos[$i]['objetivo'] = 'consulta_filiacion.php';
+	$datos[$i]['objetivo'] = 'consultaFiliacion.php';
 	$datos[$i]['nombre'] = 'Volver';
 	$i++;
 	if($editable){ //Si es editable se puede editar o cerrar el expediente

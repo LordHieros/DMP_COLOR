@@ -25,23 +25,23 @@
 		}
 		else{
 			$stmt = Conexion::getpdo()->prepare('INSERT INTO Usuarios_has_Claves(Usuarios_nombre, Claves_NASI) VALUES (:nombre, :nasi);');
-			$res=$stmt->execute(['nasi' => $nasi, 'nombre' => $_SESSION[CampoSession::NOMBRE]]);
+			$res=$stmt->execute(['nasi' => $nasi, 'nombre' => $_SESSION[CampoSession::NOMBRE_USUARIO]]);
 			if(!$res){ 
 				$error = true;
 			}
 			else{
-				$_SESSION[CampoSession::MENSAJE] = '<span class="negrita">Ficha de paciente creada.</span> El NHC ' . $_POST['NHC'] . ' tiene asociado el NASI ' . $nasi . ' para el usuario ' . $_SESSION[CampoSession::NOMBRE] . '.';
+				$_SESSION[CampoSession::MENSAJE] = '<span class="negrita">Ficha de paciente creada.</span> El NHC ' . $_POST['NHC'] . ' tiene asociado el NASI ' . $nasi . ' para el usuario ' . $_SESSION[CampoSession::NOMBRE_USUARIO] . '.';
 			}
 		}
 	}
 	if($error == true){
 		$_SESSION[CampoSession::ERROR] = '<span class="error">Ha habido un problema en la introducción de datos, error: ' . $stmt->errorInfo() . '</span>';
-		header("Location: ../consulta_paciente.php");
+		header("Location: ../seleccionPaciente.php");
 	}
 	else{
 		$_SESSION[CampoSession::NASI] = $nasi;
-		header("Location: ../consulta_paciente.php");
+		header("Location: ../seleccionPaciente.php");
 		//WhyTF this doesn't work? ERR_UNSAFE_REDIRECT
-		//header("Location: ../consulta_filiacion.php");
+		//header("Location: ../consultaFiliacion.php");
 	}
 ?>

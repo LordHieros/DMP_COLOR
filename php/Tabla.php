@@ -42,6 +42,16 @@ final class Tabla
         return $this->campos;
     }
 
+    /**
+     * Devuelve todas las columnas de la tabla
+     *
+     * @return Columna[]
+     */
+    function getColumnas()
+    {
+        return array_merge($this->getCampos(), $this->getClaves());
+    }
+
     // Esta propiedad solo existe para evitar repetir el chequeo de tablas ya chequeadas
     private $multivalued;
 
@@ -55,7 +65,7 @@ final class Tabla
         if (! isset($this->multivalued)) {
             // Se podria añadir un chequeo de "solo un multivaluado por tabla" o excepcion, pero que palo
             $multivalued = null;
-            foreach ($this->getCampos() as $campo) {
+            foreach ($this->getColumnas() as $campo) {
                 if ($campo->getTipo() === TipoColumna::multString()) {
                     $this->multivalued = $campo;
                 }
@@ -155,7 +165,6 @@ final class Tabla
                 Columna::fechaDiagnostico()
             );
             self::$Diagnosticos->campos = array(
-                Columna::fechaDiagnostico(),
                 Columna::sexo(),
                 Columna::edad(),
                 Columna::talla(),
@@ -193,7 +202,6 @@ final class Tabla
                 Columna::fechaIntervencion()
             );
             self::$Intervenciones->campos = array(
-                Columna::fechaIntervencion(),
                 Columna::duracion(),
                 Columna::fechaListaEspera(),
                 Columna::fechaAlta(),

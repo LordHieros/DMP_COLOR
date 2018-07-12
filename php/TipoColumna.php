@@ -3,6 +3,18 @@
 final class TipoColumna
 {
 
+    const TINYINT = 'TINYINT';
+
+    const VARCHAR = 'VARCHAR';
+
+    const INT = 'INT';
+
+    const DECIMAL = 'DECIMAL';
+
+    const DATE = 'DATE';
+
+    const NO_DATE = '0001-01-01';
+
     private $tipoSql;
 
     /**
@@ -27,9 +39,26 @@ final class TipoColumna
     {
         if (! isset(self::$bool)) {
             self::$bool = new TipoColumna();
-            self::$bool->tipoSql = 'TINYINT';
+            self::$bool->tipoSql = self::TINYINT;
         }
         return self::$bool;
+    }
+
+    private static $control;
+
+    /**
+     * Usa boolean, implica variables de control que tienen valor por defecto y no pueden estar a NULL
+     * Singleton
+     *
+     * @return TipoColumna
+     */
+    static function control()
+    {
+        if (! isset(self::$control)) {
+            self::$control = new TipoColumna();
+            self::$control->tipoSql = self::TINYINT;
+        }
+        return self::$control;
     }
 
     private static $multString;
@@ -47,7 +76,7 @@ final class TipoColumna
     {
         if (! isset(self::$multString)) {
             self::$multString = new TipoColumna();
-            self::$multString->tipoSql = 'VARCHAR';
+            self::$multString->tipoSql = self::VARCHAR;
         }
         return self::$multString;
     }
@@ -64,7 +93,7 @@ final class TipoColumna
     {
         if (! isset(self::$int)) {
             self::$int = new TipoColumna();
-            self::$int->tipoSql = 'INT';
+            self::$int->tipoSql = self::INT;
         }
         return self::$int;
     }
@@ -81,7 +110,7 @@ final class TipoColumna
     {
         if (! isset(self::$float)) {
             self::$float = new TipoColumna();
-            self::$float->tipoSql = 'DECIMAL';
+            self::$float->tipoSql = self::DECIMAL;
         }
         return self::$float;
     }
@@ -98,7 +127,7 @@ final class TipoColumna
     {
         if (! isset(self::$string)) {
             self::$string = new TipoColumna();
-            self::$string->tipoSql = 'VARCHAR';
+            self::$string->tipoSql = self::VARCHAR;
         }
         return self::$string;
     }
@@ -115,7 +144,7 @@ final class TipoColumna
     {
         if (! isset(self::$date)) {
             self::$date = new TipoColumna();
-            self::$date->tipoSql = 'DATE';
+            self::$date->tipoSql = self::DATE;
         }
         return self::$date;
     }

@@ -80,9 +80,9 @@ final class Modelo
         }
         return self::$modeloIntervencion;
     }
-    
+
     private static $modeloUsuarios;
-    
+
     /**
      * Singleton de modeloUsuarios
      *
@@ -99,6 +99,24 @@ final class Modelo
         return self::$modeloUsuarios;
     }
 
+    private static $modeloFiliaciones;
+
+    /**
+     * Singleton de modeloFiliacion
+     *
+     * @return Modelo
+     */
+    static function modeloFiliaciones()
+    {
+        if (! isset(self::$modeloFiliaciones)) {
+            self::$modeloFiliaciones = new Modelo();
+            self::$modeloFiliaciones->tablas = array(
+                Tabla::Filiaciones()
+            );
+        }
+        return self::$modeloFiliaciones;
+    }
+
     /**
      * Carga los datos del modelo, devolviendolos, con clave (array de nombreColumna->claveQueEs)
      * Lanza excepcion si hay problemas con el acceso a base de datos
@@ -111,11 +129,11 @@ final class Modelo
      */
     static function loadModelo($modelo, $claves)
     {
+        require_once 'Utils.php';
         try {
-            $datosBase = DatosTabla::makeFromClaves($claves);
             $datos = null;
             foreach ($modelo->getTablas() as $tabla) {
-                $datos[$tabla->getNombreTabla()] = AccesoBD::loadTabla($tabla, $datosBase);
+                $datos[$tabla->getNombreTabla()] = AccesoBD::loadTabla(DatosTabla::makeFromClaves($claves, $tabla));
             }
             return $datos;
         } catch (Exception $e) {
@@ -124,7 +142,7 @@ final class Modelo
     }
 
     /**
-     * Guarda los datos en el modelo; insert si no hab�a, update si si, delete si no hay datos en la tabla.
+     * Guarda los datos en el modelo; insert si no había, update si si, delete si no hay datos en la tabla.
      * Lanza excepcion si hay problemas con el acceso a base de datos o los datos no son correctos
      *
      * @param Modelo $modelo
@@ -137,13 +155,19 @@ final class Modelo
             throw new Exception("La entrada no es un array");
         } else {
             try {
-                // Coge los datos pertenecientes al primer "item" del array, las claves debieran ser comunes a todas las tablas de cada modelo
-                $unosDatos = $datos[0];
+                // Crea unas claves "básicas" para hacer borrados
+                $datosBase = reset($datos);
+                $claves = array();
+                foreach ($modelo->getTablas()[0]->getClaves() as $clave) {
+                    $claves[$clave->getNombre()] = $datosBase->getCampos()[$clave->getNombre()];
+                }
                 foreach ($modelo->getTablas() as $tabla) {
                     if (array_key_exists($tabla->getNombreTabla(), $datos)) {
-                        AccesoBD::saveTabla($tabla, $datos[$tabla->getNombreTabla()]);
+                        AccesoBD::saveTabla($datos[$tabla->getNombreTabla()]);
                     } else {
-                        AccesoBD::deleteTabla($tabla, $unosDatos);
+                        $unosDatos = new DatosTabla($tabla);
+                        $unosDatos->setCampos($claves);
+                        AccesoBD::deleteTabla($unosDatos);
                     }
                 }
             } catch (Exception $e) {

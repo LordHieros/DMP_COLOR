@@ -4,7 +4,7 @@ final class CampoSession
 {
 
     /**
-     * Donde se almacena con que usuario se está conectado
+     * Donde se almacena con que usuario se está conectado; en este caso no se usa el mismo nombre en tabla y sesion
      *
      * @var string
      */
@@ -18,11 +18,11 @@ final class CampoSession
     const ADMINISTRADOR = "administrador";
 
     /**
-     * Donde se almacena el usuario cuyos datos se están consultando (solo administradores)
+     * Donde se almacena el usuario cuyos datos se están consultando (solo administradores, los usuarios normales lo tienen automáticament eigual a usuario)
      *
      * @var string
      */
-    const NOMBRE = "nombre";
+    const NOMBRE_USUARIO = "nombreUsuario";
 
     /**
      * Donde se almacena el nasi del paciente que se está consultando
@@ -65,6 +65,7 @@ final class CampoSession
      * @var string
      */
     const ID_HOSPITAL = "idHospital";
+    //TODO algo con esto
 
     /**
      * make this private so noone can make one
@@ -86,10 +87,11 @@ final class CampoSession
     public static function getPKs()
     {
         return array(
-            self::ID_HOSPITAL,
+            self::NOMBRE_USUARIO,
             self::FECHA_DIAGNOSTICO,
             self::FECHA_INTERVENCION,
-            self::NASI
+            self::NASI,
+            self::ID_HOSPITAL
         );
     }
 }

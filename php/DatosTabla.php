@@ -1,11 +1,10 @@
 <?php
+include_once 'Utils.php';
 
 final class DatosTabla
 {
 
     private $tabla;
-
-    private $claves;
 
     private $campos;
 
@@ -16,15 +15,6 @@ final class DatosTabla
     public function getTabla()
     {
         return $this->tabla;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getClaves()
-    {
-        return $this->claves;
     }
 
     /**
@@ -45,101 +35,75 @@ final class DatosTabla
     {
         $this->tabla = $tabla;
         $this->campos = array();
-        $this->claves = array();
-    }
-
-    /**
-     * Crea un $datosTabla con solo claves, sin tabla asociada, a partir de los campos SESSION
-     *
-     * @return DatosTabla
-     */
-    public static function makeFromSession()
-    {
-        return self::makeFromClaves(self::getSessionClaves());
     }
 
     /**
      * Crea un $datosTabla con solo claves, sin tabla asociada.
      * No permite hacer chequeo, con lo que no es muy seguro.
      *
-     * @param $claves
+     * @param array $claves
+     * @param Tabla $tabla
+     * @throws Exception
      * @return DatosTabla
      */
-    public static function makeFromClaves($claves)
+    public static function makeFromClaves($claves, $tabla)
     {
-        $datosBase = new DatosTabla(null);
-        $datosBase->claves = $claves;
-        //TODO MIRAR!
-        ;
+        $datosBase = new DatosTabla($tabla);
+        if(!empty($claves)){
+            $datosBase->setCampos($claves);
+        }
         return $datosBase;
     }
 
     /**
      * Setea el array de claves, devolviendo excepcion si está mal formateado
      *
-     * @param array $claves
+     * @param array $campos
      * @throws Exception
      */
-    public function setClaves($claves)
+    public function setCampos($campos)
     {
-        if ($this->checkClaves($claves)) {
-            $this->claves = $claves;
-        } else {
-            throw new Exception("Array de claves " . $claves . " no corresponde al formato requerido para la tabla " . $this->getTabla()->getNombreTabla());
-        }
-    }
-
-    /**
-     * Comprueba si el array de claves introducido es correcto
-     *
-     * @param array $claves
-     * @return boolean
-     */
-    private function checkClaves($claves)
-    {
-        $checked = true;
-        foreach (array_keys($claves) as $clave) {
-            $found = false;
-            foreach ($this->getTabla()->getClaves() as $columnaClave) {
-                if ($columnaClave->getNombre() == $clave) {
-                    $found = true;
-                }
-            }
-            if (! $found) {
-                $checked = false;
+        $checked = false;
+        foreach (array_keys($campos) as $campo) {
+            if ($this->checkColumna($campo)) {
+                $this->campos[$campo] = $campos[$campo];
+                $checked = true;
             }
         }
-        return $checked;
+        if (!$checked) {
+            throw new Exception("Ninguno de los campos " . print_r($campos, true) . " corresponde al formato requerido para la tabla " . $this->getTabla()->getNombreTabla());
+        }
     }
 
     /**
      * Añade el campo a la columna correspondiente
      * Si ya existe, lo reemplaza
+     * Se usan arrays de strings para multistrings
      *
-     * @param string $campo
+     * @param string | string[] $campo
      * @param Columna $columna
      * @throws Exception
      */
     public function setCampo($campo, $columna)
     {
-        if ($this->checkColumnaCampo($columna)) {
+        if ($this->checkColumna($columna->getNombre())) {
             $this->campos[$columna->getNombre()] = $campo;
-        } else {
+        } else{
             throw new Exception("La columna " . $columna->getNombre() . " introducida no es uno de los campos de la tabla " . $this->getTabla()->getNombreTabla());
         }
     }
 
     /**
-     * Comprueba si la columna es uno de los campos de la tabla
+     * Comprueba si existe una columna en la tabla con el nombre especificado
      *
-     * @param Columna $columna
+     * @param string $columna
      * @return boolean
      */
-    private function checkColumnaCampo($columna)
+    private function checkColumna($columna)
     {
         $found = false;
-        foreach ($this->getTabla()->getCampos() as $columnaCampo) {
-            if ($columnaCampo === $columna) {
+        foreach ($this->getTabla()->getColumnas() as $columnaCampo) {
+            if ($columnaCampo->getNombre() === $columna) {
                 $found = true;
             }
         }
@@ -147,43 +111,23 @@ final class DatosTabla
     }
 
     /**
-     * Crea un array de claves a partir de los campos SESSION
-     *
-     * @return array
-     */
-    private static function getSessionClaves()
-    {
-        $claves = array();
-        if (array_key_exists(CampoSession::NOMBRE, $_SESSION)) {
-            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION[CampoSession::NOMBRE];
-        } else if (array_key_exists(CampoSession::USUARIO, $_SESSION)) {
-            $claves[Columna::nombreUsuario()->getNombre()] = $_SESSION[CampoSession::USUARIO];
-        }
-        foreach (CampoSession::getPKs() as $PK) {
-            if (array_key_exists($PK, $_SESSION)) {
-                $claves[$PK] = $_SESSION[$PK];
-            }
-        }
-        return $claves;
-    }
-
-    /**
      * Crea un Datos Tabla de la tabla especificada usando las claves de la sesion
      *
      * @param Tabla $tabla
+     * @throws Exception
      * @return DatosTabla
      */
     public static function makeWithSessionKeys($tabla)
     {
         $res = new DatosTabla($tabla);
-        $clavesSession = self::getSessionClaves();
-        $claves = array();
-        foreach ($tabla->getClaves() as $clave) {
+        $clavesSession = Utils::getSessionClaves();
+        $campos = array();
+        foreach ($tabla->getColumnas() as $clave) {
             if (array_key_exists($clave->getNombre(), $clavesSession)) {
-                $claves[$clave->getNombre()] = $clavesSession[$clave->getNombre()];
+                $campos[$clave->getNombre()] = $clavesSession[$clave->getNombre()];
             }
         }
-        $res->claves = $claves;
+        $res->setCampos($campos);
         return $res;
     }
 }

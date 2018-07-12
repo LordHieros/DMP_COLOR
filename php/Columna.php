@@ -27,7 +27,7 @@ final class Columna
     /**
      * Devuelve el tipo de la columna
      *
-     * @return TipoItem
+     * @return TipoColumna
      */
     function getTipo()
     {
@@ -110,7 +110,7 @@ final class Columna
     {
         if (! isset(self::$nombreUsuario)) {
             self::$nombreUsuario = new Columna();
-            self::$nombreUsuario->nombre = 'nombreUsuario';
+            self::$nombreUsuario->nombre = CampoSession::NOMBRE_USUARIO;
             self::$nombreUsuario->tipo = TipoColumna::string();
             self::$nombreUsuario->columna = 'nombreUsuario';
             self::$nombreUsuario->tabla = Tabla::Usuarios();
@@ -149,7 +149,7 @@ final class Columna
         if (! isset(self::$administrador)) {
             self::$administrador = new Columna();
             self::$administrador->nombre = 'administrador';
-            self::$administrador->tipo = TipoColumna::bool();
+            self::$administrador->tipo = TipoColumna::control();
             self::$administrador->columna = 'administrador';
             self::$administrador->tabla = Tabla::Usuarios();
         }
@@ -474,7 +474,7 @@ final class Columna
         if (! isset(self::$diagnosticoCerrado)) {
             self::$diagnosticoCerrado = new Columna();
             self::$diagnosticoCerrado->nombre = 'diagnosticoCerrado';
-            self::$diagnosticoCerrado->tipo = TipoColumna::bool();
+            self::$diagnosticoCerrado->tipo = TipoColumna::control();
             self::$diagnosticoCerrado->columna = 'cerrado';
             self::$diagnosticoCerrado->tabla = Tabla::Diagnosticos();
         }
@@ -839,7 +839,7 @@ final class Columna
             self::$tipoReseccion = new Columna();
             self::$tipoReseccion->nombre = 'tipoReseccion';
             self::$tipoReseccion->tipo = TipoColumna::string();
-            self::$tipoReseccion->columna = 'tipoReseccion';
+            self::$tipoReseccion->columna = 'reseccion';
             self::$tipoReseccion->tabla = Tabla::Intervenciones();
         }
         return self::$tipoReseccion;
@@ -1066,7 +1066,7 @@ final class Columna
         if (! isset(self::$intervencionCerrado)) {
             self::$intervencionCerrado = new Columna();
             self::$intervencionCerrado->nombre = 'intervencionCerrado';
-            self::$intervencionCerrado->tipo = TipoColumna::bool();
+            self::$intervencionCerrado->tipo = TipoColumna::control();
             self::$intervencionCerrado->columna = 'cerrado';
             self::$intervencionCerrado->tabla = Tabla::Intervenciones();
         }
