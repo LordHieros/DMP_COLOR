@@ -15,6 +15,8 @@ final class TipoItem
     
     const RADIO = 'radio';
 
+    const UNSPECIFIED = 'SIN_ESPECIFICAR';
+
     private $tipoInput;
 
     /**
@@ -130,6 +132,23 @@ final class TipoItem
         return self::$password;
     }
 
+    private static $verifyPassword;
+
+    /**
+     * Campo de entrada de verificar contraseña (oculto)
+     * Singleton
+     *
+     * @return TipoItem
+     */
+    static function verifyPassword()
+    {
+        if (! isset(self::$verifyPassword)) {
+            self::$verifyPassword = new TipoItem();
+            self::$verifyPassword->tipoInput = 'password';
+        }
+        return self::$verifyPassword;
+    }
+
     private static $boolean;
 
     /**
@@ -196,6 +215,23 @@ final class TipoItem
             self::$agrupacion->tipoInput = null;
         }
         return self::$agrupacion;
+    }
+
+    private static $informe;
+
+    /**
+     * Para informes, solo visibles desde consulta
+     * Singleton
+     *
+     * @return TipoItem
+     */
+    static function informe()
+    {
+        if (! isset(self::$informe)) {
+            self::$informe = new TipoItem();
+            self::$informe->tipoInput = null;
+        }
+        return self::$informe;
     }
 
     // Impide que la clase se instancie desde fuera

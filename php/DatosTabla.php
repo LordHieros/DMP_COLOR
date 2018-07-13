@@ -59,19 +59,13 @@ final class DatosTabla
      * Setea el array de claves, devolviendo excepcion si está mal formateado
      *
      * @param array $campos
-     * @throws Exception
      */
     public function setCampos($campos)
     {
-        $checked = false;
         foreach (array_keys($campos) as $campo) {
             if ($this->checkColumna($campo)) {
                 $this->campos[$campo] = $campos[$campo];
-                $checked = true;
             }
-        }
-        if (!$checked) {
-            throw new Exception("Ninguno de los campos " . print_r($campos, true) . " corresponde al formato requerido para la tabla " . $this->getTabla()->getNombreTabla());
         }
     }
 
@@ -88,6 +82,27 @@ final class DatosTabla
     {
         if ($this->checkColumna($columna->getNombre())) {
             $this->campos[$columna->getNombre()] = $campo;
+        } else{
+            throw new Exception("La columna " . $columna->getNombre() . " introducida no es uno de los campos de la tabla " . $this->getTabla()->getNombreTabla());
+        }
+    }
+
+    /**
+     * Devuevle el campo correspondiente a la columna, o null de no haber
+     *
+     * @param Columna $columna
+     * @throws Exception
+     * @return string | string[] | boolean | int | float | null
+     */
+    public function getCampo($columna)
+    {
+        if ($this->checkColumna($columna->getNombre())) {
+            if (array_key_exists($columna->getNombre(), $this->getCampos())){
+                return $this->campos[$columna->getNombre()];
+            }
+            else{
+                return null;
+            }
         } else{
             throw new Exception("La columna " . $columna->getNombre() . " introducida no es uno de los campos de la tabla " . $this->getTabla()->getNombreTabla());
         }

@@ -309,7 +309,7 @@
 	$i++;
 	if($editable){ //Si es editable se puede editar o cerrar el expediente
 		$datos[$i]['tipo'] = 'redirección';
-		$datos[$i]['objetivo'] = 'diagnostico.php';
+		$datos[$i]['objetivo'] = 'editaDiagnostico.php';
 		$datos[$i]['nombre'] = 'Editar';
 		$i++;
 		$datos[$i]['tipo'] = 'post';

@@ -3,9 +3,35 @@
 include_once('Columna.php');
 include_once('TipoItem.php');
 include_once('DatosTabla.php');
+include_once('Utils.php');
 
 final class ItemFormulario
 {
+
+    const SEXO_VARON = 'Varón';
+    const SEXO_MUJER = 'Mujer';
+    const SEXO_OTRO = 'Otro';
+
+    const ASA_I = 'I';
+    const ASA_II = 'II';
+    const ASA_III = 'III';
+    const ASA_IV = 'IV';
+
+    const INTOXICACIONES_ALCOHOL = 'Alcohol';
+    const INTOXICACIONES_TABACO = 'Tabaco';
+    const INTOXICACIONES_ESTEROIDES = 'Esteroides';
+
+    const MOTIVOS_URGENTE_OBSTRUCCION = 'Obstrucción';
+    const MOTIVOS_URGENTE_PERFORACION = 'Perforación';
+    const MOTIVOS_URGENTE_HEMORRAGIA = 'Hemorragia';
+    const MOTIVOS_URGENTE_SEPSIS = 'Sépsis';
+    const MOTIVOS_URGENTE_OTROS = 'Otros';
+
+    const NEOADYUVANCIA_RT_LARGO_QT = 'RT ciclo largo + QT';
+    const NEOADYUVANCIA_RT_CORTO_QT = 'RT ciclo corto + QT';
+    const NEOADYUVANCIA_RT_CORTO = 'RT ciclo corto';
+    const NEOADYUVANCIA_RT = 'RT';
+    const NEOADYUVANCIA_QT = 'QT';
 
     private $tipo;
 
@@ -47,7 +73,6 @@ final class ItemFormulario
     function getEtiqueta()
     {
         if (empty($this->etiqueta)) {
-            require_once 'Utils.php';
             $this->etiqueta = ucfirst($this->getNombre());
         }
         return $this->etiqueta;
@@ -87,8 +112,13 @@ final class ItemFormulario
      */
     function getNombrePost()
     {
-        if ($this->getNombre() != null && $this->getTipo() === TipoItem::checkbox()) {
-            return $this->getNombre() . '[]';
+        if ($this->getNombre() != null) {
+            if($this->getTipo() === TipoItem::checkbox()) {
+                return $this->getNombre() . '[]';
+            }
+            else if($this->getTipo() === TipoItem::verifyPassword()) {
+                return 'verify' . $this->getNombre();
+            }
         }
         return $this->getNombre();
     }
@@ -256,6 +286,9 @@ final class ItemFormulario
                 if($this->getTipo() === TipoItem::date()){
                     $datos[$tabla]->setCampo(TipoColumna::NO_DATE, $this->getColumna());
                 }
+                else if($this->getTipo() !== TipoItem::checkbox()){
+                    $datos[$tabla]->setCampo(TipoItem::UNSPECIFIED, $this->getColumna());
+                }
             } else if ($this->getTipo() === TipoItem::siNo() || $this->getTipo() === TipoItem::metastasis()) {
                 $checkSub = false;
             }
@@ -284,6 +317,48 @@ final class ItemFormulario
         return $group;
     }
 
+    // Hospitales
+    private static $idHospital;
+
+    /**
+     * Singleton de idHospital
+     *
+     * @return ItemFormulario
+     */
+    static function idHospital()
+    {
+        if (! isset(self::$idHospital)) {
+            self::$idHospital = new ItemFormulario();
+            self::$idHospital->columna = Columna::idHospital();
+            self::$idHospital->tipo = TipoItem::text();
+            self::$idHospital->requerido = true;
+            self::$idHospital->etiqueta = 'Nombre del hospital';
+        }
+        return self::$idHospital;
+    }
+
+    private static $numeroCamas;
+
+    /**
+     * Singleton de numeroCamas
+     *
+     * @return ItemFormulario
+     */
+    static function numeroCamas()
+    {
+        if (! isset(self::$numeroCamas)) {
+            self::$numeroCamas = new ItemFormulario();
+            self::$numeroCamas->columna = Columna::numeroCamas();
+            self::$numeroCamas->tipo = TipoItem::number();
+            self::$numeroCamas->requerido = true;
+            self::$numeroCamas->opciones = 'min="100"';
+            self::$numeroCamas->etiqueta = 'Numero de camas';
+        }
+        return self::$numeroCamas;
+    }
+
+
+
     // Login
     private static $nombreUsuario;
 
@@ -298,6 +373,7 @@ final class ItemFormulario
             self::$nombreUsuario = new ItemFormulario();
             self::$nombreUsuario->columna = Columna::nombreUsuario();
             self::$nombreUsuario->tipo = TipoItem::text();
+            self::$nombreUsuario->requerido = true;
             self::$nombreUsuario->etiqueta = 'Nombre de usuario';
         }
         return self::$nombreUsuario;
@@ -316,9 +392,29 @@ final class ItemFormulario
             self::$contrasenha = new ItemFormulario();
             self::$contrasenha->columna = Columna::contrasenha();
             self::$contrasenha->tipo = TipoItem::password();
+            self::$contrasenha->requerido = true;
             self::$contrasenha->etiqueta = 'Contraseña';
         }
         return self::$contrasenha;
+    }
+
+    private static $verificarContrasenha;
+
+    /**
+     * Singleton de contrasenha
+     *
+     * @return ItemFormulario
+     */
+    static function verificarContrasenha()
+    {
+        if (! isset(self::$verificarContrasenha)) {
+            self::$verificarContrasenha = new ItemFormulario();
+            self::$verificarContrasenha->columna = Columna::contrasenha();
+            self::$verificarContrasenha->tipo = TipoItem::verifyPassword();
+            self::$verificarContrasenha->requerido = true;
+            self::$verificarContrasenha->etiqueta = 'Repita Contraseña';
+        }
+        return self::$verificarContrasenha;
     }
 
     // Consulta NHC
@@ -354,6 +450,7 @@ final class ItemFormulario
             self::$fechaDiagnostico = new ItemFormulario();
             self::$fechaDiagnostico->columna = Columna::fechaDiagnostico();
             self::$fechaDiagnostico->tipo = TipoItem::date();
+            self::$fechaDiagnostico->requerido = true;
             self::$fechaDiagnostico->etiqueta = 'Fecha del diagnóstico';
         }
         return self::$fechaDiagnostico;
@@ -373,9 +470,9 @@ final class ItemFormulario
             self::$sexo->columna = Columna::sexo();
             self::$sexo->tipo = TipoItem::radio();
             self::$sexo->valores = [
-                'Varón',
-                'Mujer',
-                'Otro'
+                self::SEXO_VARON,
+                self::SEXO_MUJER,
+                self::SEXO_OTRO
             ];
         }
         return self::$sexo;
@@ -759,10 +856,10 @@ final class ItemFormulario
             self::$asa->tipo = TipoItem::radio();
             self::$asa->etiqueta = 'ASA';
             self::$asa->valores = [
-                'I',
-                'II',
-                'III',
-                'IV'
+                self::ASA_I,
+                self::ASA_II,
+                self::ASA_III,
+                self::ASA_IV
             ];
         }
         return self::$asa;
@@ -783,9 +880,9 @@ final class ItemFormulario
             self::$intoxicaciones->tipo = TipoItem::checkbox();
             self::$intoxicaciones->etiqueta = 'Intoxicación';
             self::$intoxicaciones->valores = [
-                'Alcohol',
-                'Tabaco',
-                'Esteroides'
+                self::INTOXICACIONES_ALCOHOL,
+                self::INTOXICACIONES_TABACO,
+                self::INTOXICACIONES_ESTEROIDES
             ];
         }
         return self::$intoxicaciones;
@@ -1094,6 +1191,7 @@ final class ItemFormulario
             self::$fechaIntervencion = new ItemFormulario();
             self::$fechaIntervencion->columna = Columna::fechaIntervencion();
             self::$fechaIntervencion->tipo = TipoItem::date();
+            self::$fechaIntervencion->requerido = true;
             self::$fechaIntervencion->etiqueta = 'Fecha de la intervención';
         }
         return self::$fechaIntervencion;
@@ -1256,11 +1354,11 @@ final class ItemFormulario
             self::$motivos_Urgente->tipo = TipoItem::checkbox();
             self::$motivos_Urgente->etiqueta = 'Motivo';
             self::$motivos_Urgente->valores = [
-                'Obstrucción',
-                'Perforación',
-                'Hemorragia',
-                'Sépsis',
-                'Otros'
+                self::MOTIVOS_URGENTE_OBSTRUCCION,
+                self::MOTIVOS_URGENTE_PERFORACION,
+                self::MOTIVOS_URGENTE_HEMORRAGIA,
+                self::MOTIVOS_URGENTE_SEPSIS,
+                self::MOTIVOS_URGENTE_OTROS
             ];
         }
         return self::$motivos_Urgente;
@@ -1923,11 +2021,11 @@ final class ItemFormulario
             self::$neoadyuvancia->tipo = TipoItem::radio();
             self::$neoadyuvancia->etiqueta = 'Tipo';
             self::$neoadyuvancia->valores = [
-                'RT ciclo largo + QT',
-                'RT ciclo corto + QT',
-                'RT ciclo corto',
-                'RT',
-                'QT'
+                self::NEOADYUVANCIA_RT_LARGO_QT,
+                self::NEOADYUVANCIA_RT_CORTO_QT,
+                self::NEOADYUVANCIA_RT_CORTO,
+                self::NEOADYUVANCIA_RT,
+                self::NEOADYUVANCIA_QT
             ];
         }
         return self::$neoadyuvancia;
@@ -2246,5 +2344,79 @@ final class ItemFormulario
             ];
         }
         return self::$calidadMesorrectoCancerRecto;
+    }
+
+    //Informes
+
+    private static $IMC;
+
+    /**
+     * Singleton de IMC
+     *
+     * @return ItemFormulario
+     */
+    static function IMC()
+    {
+        if (! isset(self::$IMC)) {
+            self::$IMC = new ItemFormulario();
+            self::$IMC->tipo = TipoItem::informe();
+            self::$IMC->etiqueta = 'Indice de Masa Corporal';
+            self::$IMC->nombre = 'IMC';
+        }
+        return self::$IMC;
+    }
+
+    private static $estadioTNM;
+
+    /**
+     * Singleton de estadioTNM
+     *
+     * @return ItemFormulario
+     */
+    static function estadioTNM()
+    {
+        if (! isset(self::$estadioTNM)) {
+            self::$estadioTNM = new ItemFormulario();
+            self::$estadioTNM->tipo = TipoItem::informe();
+            self::$estadioTNM->etiqueta = 'Estadio TNM';
+            self::$estadioTNM->nombre = 'EstadioTNM';
+        }
+        return self::$estadioTNM;
+    }
+
+    private static $CLS;
+
+    /**
+     * Singleton de CLS
+     *
+     * @return ItemFormulario
+     */
+    static function CLS()
+    {
+        if (! isset(self::$CLS)) {
+            self::$CLS = new ItemFormulario();
+            self::$CLS->tipo = TipoItem::informe();
+            self::$CLS->etiqueta = 'Puntuacion de fuga de colon (CLS)';
+            self::$CLS->nombre = 'CLS';
+        }
+        return self::$CLS;
+    }
+
+    private static $AL;
+
+    /**
+     * Singleton de AL
+     *
+     * @return ItemFormulario
+     */
+    static function AL()
+    {
+        if (! isset(self::$AL)) {
+            self::$AL = new ItemFormulario();
+            self::$AL->tipo = TipoItem::informe();
+            self::$AL->etiqueta = 'Probabilidad de fuga anastomótica';
+            self::$AL->nombre = 'AL';
+        }
+        return self::$AL;
     }
 }

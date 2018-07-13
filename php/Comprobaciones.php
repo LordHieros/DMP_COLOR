@@ -6,6 +6,7 @@ include_once("CampoSession.php");
 include_once("DatosTabla.php");
 include_once("Modelo.php");
 include_once("AccesoBD.php");
+include_once("Utils.php");
 
 final class Comprobaciones
 {
@@ -25,14 +26,28 @@ final class Comprobaciones
             } else {
                 $datos = Modelo::loadModelo(Modelo::modeloUsuarios(), [Columna::nombreUsuario()->getNombre() => $nombre])[Tabla::Usuarios()->getNombreTabla()];
                 if ($datos != null) { //Comprobar si existe usuario
-                    if ($datos->getCampos()[Columna::contrasenha()->getNombre()] == $contrasenha) { //Comprobar la contraseña
-                        $_SESSION[CampoSession::USUARIO] = $datos->getCampos()[Columna::nombreUsuario()->getNombre()]; //Cargar nombre de la base de datos
-                        if ($datos->getCampos()[Columna::administrador()->getNombre()]) {
+                    if ($datos->getCampo(Columna::contrasenha()) == $contrasenha) { //Comprobar la contraseña
+                        $_SESSION[CampoSession::USUARIO] = $datos->getCampo(Columna::nombreUsuario()); //Cargar nombre de la base de datos
+                        if ($datos->getCampo(Columna::administrador())) {
                             $_SESSION[CampoSession::ADMINISTRADOR] = true;
                         } //Comprobar si es administrador
                         else {
                             $_SESSION[CampoSession::ADMINISTRADOR] = false;
+                            $_SESSION[CampoSession::NOMBRE_USUARIO] = $_SESSION[CampoSession::USUARIO];
                         }
+                        $datosHospital = Modelo::loadModelo(Modelo::modeloHospitales(), array())[Tabla::Hospitales()->getNombreTabla()];
+                        if(empty($datosHospital)){
+                            $idHospital = rand();
+                            $_SESSION[CampoSession::MENSAJE] = "Se ha creado el hospital " . $idHospital;
+                            $datosHospital = new DatosTabla(Tabla::Hospitales());
+                            $datosHospital->setCampo($idHospital, Columna::idHospital());
+                            $datosHospital->setCampo(100, Columna::numeroCamas()); //100 es el mínimo admisible
+                            AccesoBD::saveTabla($datosHospital);
+                        }
+                        else {
+                            $idHospital = $datosHospital->getCampo(Columna::idHospital());
+                        }
+                        $_SESSION[CampoSession::ID_HOSPITAL] = $idHospital;
                         return true;
                     } else {
                         $_SESSION[CampoSession::ERROR] = "Contraseña incorrecta";
@@ -59,10 +74,10 @@ final class Comprobaciones
             } else {
                 $datos = Modelo::loadModelo(Modelo::modeloFiliaciones(), [Columna::nhc()->getNombre() => $nhc])[Tabla::Filiaciones()->getNombreTabla()];
                 if ($datos != null) { //Comprobar si existe filiacion
-                    if ($datos->getCampos()[Columna::nombreUsuario()->getNombre()] == $_SESSION[CampoSession::NOMBRE_USUARIO] || $_SESSION[CampoSession::ADMINISTRADOR]) { //Comprobar si tenemos acceso a la filiacion
-                        $_SESSION[CampoSession::NASI] = $datos->getCampos()[Columna::nasi()->getNombre()];
+                    if ($datos->getCampo(Columna::nombreUsuario()) == $_SESSION[CampoSession::NOMBRE_USUARIO]) { //Comprobar si tenemos acceso a la filiacion
+                        $_SESSION[CampoSession::NASI] = $datos->getCampo(Columna::nasi());
                     } else {
-                        $_SESSION[CampoSession::ERROR] = "El NHC introducido ya está asignado a otro usuario: " . $datos->getCampos()[Columna::nombreUsuario()->getNombre()];
+                        $_SESSION[CampoSession::ERROR] = "El NHC introducido ya está asignado a otro usuario: " . $datos->getCampo(Columna::nombreUsuario());
                     }
                 } else {
                     $_SESSION[CampoSession::NASI] = AccesoBD::randomNasi();
@@ -104,6 +119,36 @@ final class Comprobaciones
     }
 
     /**
+     * Crea diagnóstico, soltando excepción en caso de error
+     *
+     * @throws Exception
+     * @return boolean
+     */
+    public static function checkCreaUsuario()
+    {
+        if (isset($_POST[Formulario::formCreaUsuario()->getSubmit()])) {
+            $nombreUsuario = $_POST[ItemFormulario::nombreUsuario()->getNombre()];
+            $contrasenha = $_POST[ItemFormulario::contrasenha()->getNombre()];
+            if (empty($nombreUsuario)) {
+                $_SESSION[CampoSession::ERROR] = "Debe introducir un nombre de usuario";
+            } else {
+                $datos = Modelo::loadModelo(Modelo::modeloUsuarios(), [Columna::nombreUsuario()->getNombre() => $nombreUsuario])[Tabla::Usuarios()->getNombreTabla()];
+                if ($datos != null) { //Comprobar si existe usuario
+                    $_SESSION[CampoSession::ERROR] = "Ya existe un usuario de nombre " . $nombreUsuario;
+                } else {
+                    $datos = new DatosTabla(Tabla::Usuarios());
+                    $datos->setCampo($nombreUsuario, Columna::nombreUsuario());
+                    $datos->setCampo($contrasenha, Columna::contrasenha());
+                    $datos->setCampo(false, Columna::administrador());
+                    AccesoBD::saveTabla($datos);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Crea intervención, soltando excepción en caso de error
      *
      * @throws Exception
@@ -139,19 +184,24 @@ final class Comprobaciones
      */
     public static function editaDiagnostico()
     {
-        if (isset($_POST[Formulario::formDiagnostico()->getSubmit()])) {
-            if(true) {
-                require_once 'Utils.php';
-                foreach (array_keys($_POST) as $dato)
-                    if (!empty($_POST[$dato]))
-                        Utils::console_log('POST[' . $dato . ']: ' . print_r($_POST[$dato], true));
-                foreach (Formulario::formDiagnostico()->makeDatos() as $dato)
-                    Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true));
+        return self::guardaFormulario(Formulario::formDiagnostico(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
+    }
+
+    /**
+     * Edita hospital, soltando excepción en caso de error
+     *
+     * @throws Exception
+     * @return boolean
+     */
+    public static function editaHospital()
+    {
+        if (isset($_POST[ItemFormulario::idHospital()->getNombrePost()])) {
+            if ($_POST[ItemFormulario::idHospital()->getNombrePost()] !== $_SESSION[CampoSession::ID_HOSPITAL]) {
+                AccesoBD::changeHospitalId($_SESSION[CampoSession::ID_HOSPITAL], $_POST[ItemFormulario::idHospital()->getNombrePost()]);
+                $_SESSION[CampoSession::ID_HOSPITAL] = $_POST[ItemFormulario::idHospital()->getNombrePost()];
             }
-            Formulario::formDiagnostico()->saveToDatabase();
-            return true;
         }
-        return false;
+        return self::guardaFormulario(Formulario::formHospital(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
     }
 
     /**
@@ -162,17 +212,29 @@ final class Comprobaciones
      */
     public static function editaIntervencion()
     {
-        if (isset($_POST[Formulario::formIntervencion()->getSubmit()])) {
-            if(true) {
-                require_once 'Utils.php';
+        return self::guardaFormulario(Formulario::formIntervencion(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
+    }
+
+
+    /**
+     * Guarda los datos del formulario
+     *
+     * @param Formulario $form
+     * @param boolean $log
+     * @throws Exception
+     * @return boolean
+     */
+    private static function guardaFormulario($form, $log){
+        if (isset($_POST[$form->getSubmit()])) {
+            if($log) {
                 foreach (array_keys($_POST) as $dato)
                     if (!empty($_POST[$dato]))
                         Utils::console_log('POST[' . $dato . ']: ' . print_r($_POST[$dato], true));
-                foreach (Formulario::formIntervencion()->makeDatos() as $dato)
+                foreach ($form->makeDatos() as $dato)
                     Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true));
             }
-            Formulario::formIntervencion()->saveToDatabase();
-            return true;
+            $form->saveToDatabase();
+            return !$log;
         }
         return false;
     }

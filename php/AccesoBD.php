@@ -137,6 +137,7 @@ final class AccesoBD
      * Crea un statement INSERT, con inserción múltiple en caso de ser necesario
      *
      * @param DatosTabla $datos
+     * @throws Exception
      * @return string
      */
     private static function makeInsert($datos)
@@ -146,20 +147,21 @@ final class AccesoBD
         $statement = 'INSERT INTO ' . $datos->getTabla()->getNombreTabla() . $tmp;
         $keys = null;
         $values = null;
-        foreach ($datos->getTabla()->getColumnas() as $campo) {
-            if ($campo->getTipo() !== TipoColumna::multString()) {
-                $keys[] = $campo->getColumna();
-                if (array_key_exists($campo->getNombre(), $datos->getCampos())) {
-                    if ($campo->getTipo()->getTipoSql() === TipoColumna::TINYINT) {
-                        if ($datos->getCampos()[$campo->getNombre()]) {
+        foreach ($datos->getTabla()->getColumnas() as $columna) {
+            if ($columna->getTipo() !== TipoColumna::multString()) {
+                $keys[] = $columna->getColumna();
+                $campo = $datos->getCampo($columna);
+                if (!empty($campo)) {
+                    if ($columna->getTipo()->getTipoSql() === TipoColumna::TINYINT) {
+                        if ($campo) {
                             $values[] = '1';
                         } else {
                             $values[] = '0';
                         }
                     } else {
-                        $values[] = "'" . $datos->getCampos()[$campo->getNombre()] . "'";
+                        $values[] = "'" . $campo . "'";
                     }
-                } else if($campo->getTipo() !== TipoColumna::control()) {
+                } else if($columna->getTipo() !== TipoColumna::control()) {
                     $values[] = 'NULL';
                 }
             }
@@ -170,10 +172,9 @@ final class AccesoBD
             $statement = $statement . ', ' . $multi->getColumna() . ') VALUES ';
             $item = '(' . implode(', ', $values);
             $multivalues[] = '';//Inserta vacio por defecto de ser pertinente, para ceptar checklist vacios si van precedidos de un si/no
-            if (array_key_exists($multi->getNombre(), $datos->getCampos())) {
-                if(!empty($datos->getCampos()[$multi->getNombre()])) {
-                    $multivalues = $datos->getCampos()[$multi->getNombre()];
-                }
+            $campo = $datos->getCampo($multi);
+            if(!empty($campo)) {
+                $multivalues = $campo;
             }
             $items = array();
             foreach ($multivalues as $multivalue) {
@@ -192,6 +193,7 @@ final class AccesoBD
      * @param string $itemsToSelect
      * @param DatosTabla $datos
      * @param Columna[] $columnas
+     * @throws Exception
      * @return string
      */
     private static function makeSelect($itemsToSelect, $datos, $columnas)
@@ -204,27 +206,29 @@ final class AccesoBD
      * Crea un statement UPDATE
      *
      * @param DatosTabla $datos
+     * @throws Exception
      * @return string
      */
     private static function makeUpdate($datos)
     {
         $statement = 'UPDATE ' . $datos->getTabla()->getNombreTabla() . ' SET ';
         $sets = null;
-        foreach ($datos->getTabla()->getColumnas() as $campo) {
+        foreach ($datos->getTabla()->getColumnas() as $columna) {
             // Nunca debiera darse el caso, tal y como está la base de datos, de que hubiese que updatear un multistring. Se deja por deporte.
-            if ($campo->getTipo() !== TipoColumna::multString()) {
-                if (array_key_exists($campo->getNombre(), $datos->getCampos())) {
-                    if ($campo->getTipo()->getTipoSql() === TipoColumna::TINYINT) {
-                        if ($datos->getCampos()[$campo->getNombre()] == TipoItem::SI) {
-                            $sets[] = $campo->getColumna() . ' = 1';
+            if ($columna->getTipo() !== TipoColumna::multString()) {
+                $campo = $datos->getCampo($columna);
+                if (!empty($campo)) {
+                    if ($columna->getTipo()->getTipoSql() === TipoColumna::TINYINT) {
+                        if ($campo == TipoItem::SI) {
+                            $sets[] = $columna->getColumna() . ' = 1';
                         } else {
-                            $sets[] = $campo->getColumna() . ' = 0';
+                            $sets[] = $columna->getColumna() . ' = 0';
                         }
                     } else {
-                        $sets[] = $campo->getColumna() . " = '" . $datos->getCampos()[$campo->getNombre()] . "'";
+                        $sets[] = $columna->getColumna() . " = '" . $campo . "'";
                     }
-                } else if($campo->getTipo() !== TipoColumna::control()) {
-                    $sets[] = $campo->getColumna() . ' = NULL';
+                } else if($columna->getTipo() !== TipoColumna::control()) {
+                    $sets[] = $columna->getColumna() . ' = NULL';
                 }
             }
         }
@@ -235,6 +239,7 @@ final class AccesoBD
     /**
      * Crea un statement DELETE FROM.
      *
+     * @throws Exception
      * @param DatosTabla $datos
      * @return string
      */
@@ -247,6 +252,7 @@ final class AccesoBD
     /**
      * Crea una clausula WHERE
      *
+     * @throws Exception
      * @param DatosTabla $datos
      * @param Columna[] $columnas
      * @return string
@@ -255,8 +261,9 @@ final class AccesoBD
     {
         $statement = '';
         foreach ($columnas as $columna) {
-            if (array_key_exists($columna->getNombre(), $datos->getCampos())) {
-                $wheres[] = $columna->getColumna() . ' = "' . $datos->getCampos()[$columna->getNombre()] . '"';
+            $campo = $datos->getCampo($columna);
+            if (!empty($campo)) {
+                $wheres[] = $columna->getColumna() . ' = "' . $campo . '"';
             }
         }
         if (!empty($wheres)) {
@@ -273,7 +280,7 @@ final class AccesoBD
      * @return array[]
      */
     private static function getAll($datos){
-        return self::executeStatement(self::makeSelect('*', $datos, $datos->getTabla()->getClaves()))->fetchAll();
+        return self::executeStatement(self::makeSelect('*', $datos, $datos->getTabla()->getColumnas()))->fetchAll();
     }
 
     /**
@@ -319,19 +326,19 @@ final class AccesoBD
         foreach(self::getAll($datos) as $item){
             $entry = $item[Columna::fechaDiagnostico()->getColumna()];
             $causas->setCampo($entry, Columna::fechaDiagnostico());
-            $entry = Utils::readableDate($entry);
+            $readableEntry = Utils::readableDate($entry);
             $resCausas = self::getAll($causas);
             if(empty($resCausas)) {
-                $entry = $entry . ' - Sin causas de intervención especificadas';
+                $readableEntry = $readableEntry . ' - Sin causas de intervención especificadas';
             }
             else{
                 $entries = array();
                 foreach ($resCausas as $causa){
                     $entries[] = $causa[Columna::causasIntervencion()->getColumna()];
                 }
-                $entry = $entry . ' - Causas de intervención: ' . implode(', ', $entries);;
+                $readableEntry = $readableEntry . ' - Causas de intervención: ' . implode(', ', $entries);;
             }
-            $res[$item[Columna::fechaDiagnostico()->getColumna()]] = $entry;
+            $res[$entry] = $readableEntry;
         }
         return $res;
     }
@@ -364,6 +371,20 @@ final class AccesoBD
             $res[$item[Columna::fechaIntervencion()->getColumna()]] = $entry;
         }
         return $res;
+    }
+
+    /**
+     * Cambia el id de hospital. Se pone aparte porque es la unica clave primaria que puede cambiar.
+     *
+     * @param string $original
+     * @param string $new
+     * @throws Exception
+     */
+    public static function changeHospitalId($original, $new){
+        $statement = "UPDATE " . Tabla::Hospitales()->getNombreTabla();
+        $statement = $statement . " SET " . Columna::idHospital()->getColumna() . "='" . $new . "'";
+        $statement = $statement . " WHERE " . Columna::idHospital()->getColumna() . "='" . $original . "';";
+        self::executeStatement($statement);
     }
 
     /**

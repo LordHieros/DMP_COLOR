@@ -4,6 +4,12 @@
 	if(!isset($_SESSION)){
 		session_start(); // Starting Session
 	}
+	//if(!array_key_exists(CampoSession::USUARIO, $_SESSION)){ //Si no se ha iniciado sesión
+	//	if(basename($_SERVER['PHP_SELF'])!='index.php'){  //Si no se está en el index se manda al index con un mensaje de error
+	//		$_SESSION[CampoSession::ERROR]='No se ha iniciado sesión o la sesión ha caducado';
+	//		header('location: ' . $_SERVER["DOCUMENT_ROOT"] . '/index.php');
+	//	}
+	//}
 	
 	//Mirar
 	function make_boton_post($nombre, $objetivo, $valor, $mensaje, $opt){
@@ -231,6 +237,88 @@
 			}
 		}
 		return $consultas;
+	}
+	
+	function calculoIMC($talla, $edad, $peso) {
+		if(!isset($talla) || !isset($edad) || !isset($peso)){	
+			$IMC = "Introduzca talla, edad y peso.";
+		}
+		else{
+			$IMC = round ( $peso/($talla*$talla/10000), 2 ); // IMC con dos dígitos de precision
+			if($edad > 20){
+				if ($IMC<18.5){
+					$IMC = $IMC . ". Este índice de masa corporal indica un peso bajo.";
+				}
+				if ($IMC>=18.5 && $IMC<25){
+					$IMC = $IMC . ". Este índice de masa corporal indica un peso normal.";
+				}
+				if ($IMC>=25 && $IMC<30){
+					$IMC = $IMC . ". Este índice de masa corporal indica un sobrepeso.";
+				}
+				if ($IMC>=30){
+					$IMC = $IMC . ". Este índice de masa corporal indica obesidad.";
+				}
+			}
+			else if ($edad <= 20 && $edad >= 0){
+				$IMC = $IMC . ". Para conocer la relevancia de este índice antes de los veinte años hay que comparar con los IMCs relevantes para individuos de su edad y sexo.";
+			}
+			else{
+				$IMC = $IMC . ". Edad no introducida, consultar con administrador.";
+			}
+		}
+		return $IMC;
+	}
+	
+	function calculoTNM($T, $N, $M){
+		if($T == "" || $N == "" || $M == ""){
+			$TNM = "Introduzca los valores de T, N y M para calcular el estadio";
+		}
+		else if($M == "M1"){
+			$TNM = "Estadio: IV";
+		}
+		else if($M == "M1a"){
+			$TNM = "Estadio: IVA";
+		}
+		else if($M == "M1b"){
+			$TNM = "Estadio: IVB";
+		}
+		else if($T == "TX" || $N == "NX"){
+			$TNM = "Si no hay metástasis distante y no se pueden evaluar el tumor primario o los nodos linfáticos regionales no se puede calcular el estadio";
+		}
+		else if($T == "Tis" && $N == "N0"){
+			$TNM = "Estadio: 0";
+		}
+		else if($T == "Tis" || $T == "T0"){
+			$TNM = "*** CONSULTAR CON FERNANDO ***";
+		}
+		else if(($T == "T1" || $T == "T2") && $N == "N0"){
+			$TNM = "Estadio: I";
+		}
+		else if($T == "T3" && $N == "N0"){
+			$TNM = "Estadio: IIA";
+		}
+		else if($T == "T4a" && $N == "N0"){
+			$TNM = "Estadio: IIB";
+		}
+		else if($T == "T4b" && $N == "N0"){
+			$TNM = "Estadio: IIC";
+		}
+		else if(!($T == "T4b") && $N == "N2"){
+			$TNM = "Estadio: III, no se puede concluir si A, B o C sin especificar más la metástasis de los nodos linfáticos regionales";
+		}
+		else if((($T == "T1" || $T == "T2") && ($N == "N1" || $N == "N1a" || $N == "N1b" || $N == "N1c")) || ($T == "T1" && $N == "N2a")){
+			$TNM = "Estadio: IIIA";
+		}
+		else if((($T == "T3" || $T == "T4a") && ($N == "N1" || $N == "N1a" || $N == "N1b" || $N == "N1c")) || (($T == "T2" || $T == "T3") && $N == "N2a") || (($T == "T1" || $T == "T2") && $N == "N2b")){
+			$TNM = "Estadio: IIIB";
+		}
+		else if(($T == "T4a" && $N == "N2a") || (($T == "T3" || $T == "T4a") && $N == "N2b") || ($T == "T4b" && !($N == "N0" || $N == "NX"))){
+			$TNM = "Estadio: IIIC";
+		}
+		else{
+			$TNM = "Error extraño, consultar admin";
+		}
+		return $TNM;
 	}
 	
 	//Dado un título, un cuerpo y un encabezado opcional crea la arquitectura de la página

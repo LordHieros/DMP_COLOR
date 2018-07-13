@@ -22,7 +22,7 @@ final class Formulario
     private $submit;
 
     /**
-     * Devuelve los items del formulario
+     * Devuelve los items del formulario; incluye todas las agrupaciones pertinentes y los informes, que solo aparecen en view
      *
      * @return ItemFormulario[]
      */
@@ -113,6 +113,28 @@ final class Formulario
         $this->submit = 'Enviar';
     }
 
+    private static $formHospital;
+
+    /**
+     * Formulario de Hospital
+     * Singleton
+     *
+     * @return Formulario
+     */
+    static function formHospital()
+    {
+        if (! isset(self::$formHospital)) {
+            $items = array(
+                self::grupoHospital()
+            );
+            $claves = array();
+            self::$formHospital = new Formulario($items, $claves, Modelo::modeloHospitales());
+            self::$formHospital->legend = 'Editar datos de Hospital';
+            self::$formHospital->submit = "Editar";
+        }
+        return self::$formHospital;
+    }
+
     private static $formLogin;
 
     /**
@@ -133,6 +155,28 @@ final class Formulario
             self::$formLogin->submit = "Login";
         }
         return self::$formLogin;
+    }
+
+    private static $formCreaUsuario;
+
+    /**
+     * Formulario de creación de usuario
+     * Singleton
+     *
+     * @return Formulario
+     */
+    static function formCreaUsuario()
+    {
+        if (! isset(self::$formCreaUsuario)) {
+            $items = array(
+                self::grupoCreaUsuario()
+            );
+            $claves = array();
+            self::$formCreaUsuario = new Formulario($items, $claves, Modelo::modeloUsuarios());
+            self::$formCreaUsuario->legend = 'Crear usuario';
+            self::$formCreaUsuario->submit = "Crear";
+        }
+        return self::$formCreaUsuario;
     }
 
     private static $formNHC;
@@ -193,7 +237,8 @@ final class Formulario
             $items = array(
                 self::grupoDiagnosticoPrincipal(),
                 self::grupoMetastasis(),
-                self::grupoPreoperatorio()
+                self::grupoPreoperatorio(),
+                ItemFormulario::IMC()
             );
             $claves = array(
                 CampoSession::NASI,
@@ -241,7 +286,10 @@ final class Formulario
             $items = array(
                 self::grupoIntervencionPrincipal(),
                 self::grupoPostoperatorio(),
-                self::grupoEstudioAnatomopatologico()
+                self::grupoEstudioAnatomopatologico(),
+                ItemFormulario::estadioTNM(),
+                ItemFormulario::CLS(),
+                ItemFormulario::AL()
             );
             $claves = array(
                 CampoSession::NASI,
@@ -396,6 +444,22 @@ final class Formulario
     }
 
     /**
+     * Crea el grupo de items de login
+     *
+     * @return ItemFormulario
+     */
+    private static function grupoCreaUsuario()
+    {
+        $etiqueta = 'Crear Usuario';
+        $nest = array(
+            ItemFormulario::nombreUsuario(),
+            ItemFormulario::contrasenha(),
+            ItemFormulario::verificarContrasenha()
+        );
+        return ItemFormulario::makeGroup($etiqueta, $nest);
+    }
+
+    /**
      * Crea el grupo de items de NHC
      *
      * @return ItemFormulario
@@ -424,7 +488,7 @@ final class Formulario
     }
 
     /**
-     * Crea el grupo de items de de creación de intervención
+     * Crea el grupo de items de creación de intervención
      *
      * @return ItemFormulario
      */
@@ -433,6 +497,20 @@ final class Formulario
         $etiqueta = 'Crear intervención';
         $nest = array(
             ItemFormulario::fechaIntervencion()
+        );
+        return ItemFormulario::makeGroup($etiqueta, $nest);
+    }
+    /**
+     * Crea el grupo de items de edición de hospitales
+     *
+     * @return ItemFormulario
+     */
+    private static function grupoHospital()
+    {
+        $etiqueta = 'Editar datos de Hospital';
+        $nest = array(
+            ItemFormulario::idHospital(),
+            ItemFormulario::numeroCamas()
         );
         return ItemFormulario::makeGroup($etiqueta, $nest);
     }

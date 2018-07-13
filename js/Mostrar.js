@@ -28,8 +28,6 @@ function requerir(elem, requerir){
 function load(){
 	var revelando=document.getElementsByClassName("revelador");
 	var requiriendo=document.getElementsByClassName("requeridor");
-	console.log('loadeando, ' + revelando.length);
-	console.log(document);
 	for(i=0;i<revelando.length;i++){ //Este bucle nos permite mostrar si el elemento revelador está marcado
 		if(revelando[i].checked){
 			mostrar(revelando[i],true);

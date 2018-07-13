@@ -99,6 +99,24 @@ final class Modelo
         return self::$modeloUsuarios;
     }
 
+    private static $modeloHospitales;
+
+    /**
+     * Singleton de modeloHospitales
+     *
+     * @return Modelo
+     */
+    static function modeloHospitales()
+    {
+        if (! isset(self::$modeloHospitales)) {
+            self::$modeloHospitales = new Modelo();
+            self::$modeloHospitales->tablas = array(
+                Tabla::Hospitales()
+            );
+        }
+        return self::$modeloHospitales;
+    }
+
     private static $modeloFiliaciones;
 
     /**
@@ -129,7 +147,6 @@ final class Modelo
      */
     static function loadModelo($modelo, $claves)
     {
-        require_once 'Utils.php';
         try {
             $datos = null;
             foreach ($modelo->getTablas() as $tabla) {
@@ -159,7 +176,7 @@ final class Modelo
                 $datosBase = reset($datos);
                 $claves = array();
                 foreach ($modelo->getTablas()[0]->getClaves() as $clave) {
-                    $claves[$clave->getNombre()] = $datosBase->getCampos()[$clave->getNombre()];
+                    $claves[$clave->getNombre()] = $datosBase->getCampo($clave);
                 }
                 foreach ($modelo->getTablas() as $tabla) {
                     if (array_key_exists($tabla->getNombreTabla(), $datos)) {

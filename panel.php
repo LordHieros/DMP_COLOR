@@ -1,24 +1,9 @@
 <?php
-    include('php/header.php');
-    include("php/Login.php");
-    include('php/Comprobaciones.php');
+    include_once('php/header.php');
+    include_once('php/Comprobaciones.php');
+    include_once('php/Utils.php');
 
-    Login::checkLogin();
-
-	$tmp1=$_SESSION[CampoSession::USUARIO]; //Cuando se entra a panel se borran los datos de sesión que no sean nombre de usuario, estado de administrador y mensaje de error
-	$tmp2=$_SESSION[CampoSession::ADMINISTRADOR];
-	if(isset($_SESSION[CampoSession::ERROR])) $tmp3=$_SESSION[CampoSession::ERROR];
-	session_destroy();
-	session_start();
-	$_SESSION[CampoSession::USUARIO]=$tmp1;
-	$_SESSION[CampoSession::ADMINISTRADOR]=$tmp2;
-	if(isset($tmp3)){
-		$_SESSION[CampoSession::ERROR]=$tmp3;
-		unset($tmp3);
-	}
-	unset($tmp1);
-	unset($tmp2);
-
+    Utils::flushSession();
 
 	Comprobaciones::compruebaUsuario();
 	
@@ -31,24 +16,29 @@
 	else{
 		$html['titulo'] = $html['titulo'] . $_SESSION[CampoSession::USUARIO] ;
 	}
-	$html['encabezado'] = '<h4> DMP-Color: Plataforma para a xestión de datos nunha unidade de cirurxía colorrectal </h4>';
+	$html['encabezado'] = '<h4> DMP-Color: Plataforma para a xestión de datos nunha unidade de cirurxía colorrectal </h4>' . "\n";
 	//Creamos el cuerpo
-	$html['body'] = '';
-	if(isset($_SESSION[CampoSession::ERROR])){ //En caso de que exista un mensaje de error, imprimirlo y borrarlo
-		$html['body'] = $html['body'] . '<p class="error">' . $_SESSION[CampoSession::ERROR] . '</p>';
-		unset($_SESSION[CampoSession::ERROR]);
-	}
+    try {
+        $view = Formulario::formHospital()->makeView();
+    } catch (Exception $e){
+        Utils::manageException($e);
+    }
+    if(empty($view)){
+        $view = '<h4>No hay datos de hospital, consultar con un administrador</h4>';
+    }
+    $html['body'] = Utils::getBasicBody() . $view;
 	 //Crear las opciones
 	$datos[0]['tipo'] = 'redirección';
+    $datos[0]['objetivo'] = 'seleccionUsuario.php';
 	if($_SESSION[CampoSession::ADMINISTRADOR]){ //Si administrador manda a consulta_usuario
-		$datos[0]['objetivo'] = 'consulta_usuario.php';
-		$datos[0]['nombre'] = 'Consultar usuarios';
+        $datos[0]['nombre'] = 'Consultar usuarios';
+        $datos[1]['nombre'] = 'Editar Hospital';
+        $datos[1]['tipo'] = 'redirección';
+        $datos[1]['objetivo'] = 'editaHospital.php';
 	}
 	else{ //Si no directamente a consulta_paciente
-		$datos[0]['objetivo'] = 'consulta_paciente.php';
 		$datos[0]['nombre'] = 'Consultar pacientes';
 	}
 	$html['body'] = $html['body'] . make_navbar($datos);	
 	unset($datos);
 	echo make_html($html);
-?>

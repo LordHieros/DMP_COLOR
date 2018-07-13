@@ -299,7 +299,7 @@
 	$datos[0]['nombre'] = 'Volver';
 	if($editable){ //Si es editable se puede editar o cerrar el expediente
 		$datos[1]['tipo'] = 'redirección';
-		$datos[1]['objetivo'] = 'intervencion.php';
+		$datos[1]['objetivo'] = 'editaIntervencion.php';
 		$datos[1]['nombre'] = 'Editar';
 		$datos[2]['tipo'] = 'post';
 		$datos[2]['objetivo'] = 'php/intervencion_datos.php';

@@ -20,14 +20,16 @@
         public static function flushSession(){
             $tmp1=$_SESSION[CampoSession::USUARIO]; //Cuando se entra a panel se borran los datos de sesión que no sean nombre de usuario, estado de administrador y mensaje de error
             $tmp2=$_SESSION[CampoSession::ADMINISTRADOR];
-            if(isset($_SESSION[CampoSession::ERROR])) $tmp3=$_SESSION[CampoSession::ERROR];
+            $tmp3=$_SESSION[CampoSession::ID_HOSPITAL];
+            if(isset($_SESSION[CampoSession::ERROR])) $tmp4=$_SESSION[CampoSession::ERROR];
             session_destroy();
             session_start();
             $_SESSION[CampoSession::USUARIO]=$tmp1;
             $_SESSION[CampoSession::ADMINISTRADOR]=$tmp2;
-            if(isset($tmp3)){
-                $_SESSION[CampoSession::ERROR]=$tmp3;
-                unset($tmp3);
+            $_SESSION[CampoSession::ID_HOSPITAL]=$tmp3;
+            if(isset($tmp4)){
+                $_SESSION[CampoSession::ERROR]=$tmp4;
+                unset($tmp4);
             }
             unset($tmp1);
             unset($tmp2);

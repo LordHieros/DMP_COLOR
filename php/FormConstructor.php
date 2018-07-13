@@ -2,6 +2,7 @@
 
 include_once 'Modelo.php';
 include_once 'Utils.php';
+include_once 'Informes.php';
 
 final class FormConstructor
 {
@@ -42,17 +43,18 @@ final class FormConstructor
      *
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
+     * @throws Exception
      * @return string
      */
     public static function viewItem($item, $datos)
     {
         $contenido = '';
-        if($item->getTipo()->getTipoInput() != null){
+        if($item->getTipo()->getTipoInput() !== TipoItem::agrupacion()){
             $thisdatos = self::checkValue($item, $datos);
             if($item->getTipo() === TipoItem::date()){
                 $thisdatos = Utils::readableDate($thisdatos);
             }
-            if ($thisdatos != null && $thisdatos != TipoItem::NO) {
+            if ($thisdatos != null && $thisdatos != TipoItem::NO && $thisdatos != TipoItem::UNSPECIFIED) {
                 $thisvalue = self::makeTableItem('', $item->getEtiqueta()) . self::makeTableItem('', $thisdatos);
                 $contenido = $contenido . self::makeTableRow('', $thisvalue);
             }
@@ -129,15 +131,16 @@ final class FormConstructor
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
      * @param boolean $oculto
+     * @throws Exception
      * @return string
      */
     private static function makeItemContent($item, $datos, $oculto)
     {
         $contenido = '';
         $revelador = false;
-        if ($item->getTipo()->getTipoInput() == null) {
+        if ($item->getTipo() === TipoItem::agrupacion()) {
             $contenido = $contenido . self::makeLegend($item);
-        } else {
+        } else if ($item->getTipo() !== TipoItem::informe()) {
             if ($item->getTipo()->getTipoInput() === TipoItem::CHECKBOX || $item->getTipo()->getTipoInput() === TipoItem::RADIO) {
                 if ($item->getTipo() === TipoItem::siNo() || $item->getTipo() === TipoItem::metastasis()) {
                     $revelador = true;
@@ -168,17 +171,19 @@ final class FormConstructor
         $res = '';
         $first = true;
         foreach ($formulario->getItems() as $item) {
-            $selected = 'false';
-            $active = '';
-            if ($first) {
-                $first = false;
-                $selected = 'true';
-                $active = ' active';
-            } else {
-                $res = $res . "\n";
+            if($item->getTipo()!== TipoItem::informe()) {
+                $selected = 'false';
+                $active = '';
+                if ($first) {
+                    $first = false;
+                    $selected = 'true';
+                    $active = ' active';
+                } else {
+                    $res = $res . "\n";
+                }
+                $opciones = 'class="nav-link' . $active . '" id="v-pills-' . $item->getNombre() . '-tab" data-toggle="pill" href="#v-pills-' . $item->getNombre() . '" role="tab" aria-controls="v-pills-' . $item->getNombre() . '" aria-selected="' . $selected . '"';
+                $res = $res . self::makeHyperlink($opciones, $item->getEtiqueta());
             }
-            $opciones = 'class="nav-link' . $active . '" id="v-pills-' . $item->getNombre() . '-tab" data-toggle="pill" href="#v-pills-' . $item->getNombre() . '" role="tab" aria-controls="v-pills-' . $item->getNombre() . '" aria-selected="' . $selected . '"';
-            $res = $res . self::makeHyperlink($opciones, $item->getEtiqueta());
         }
         $res = self::makeDiv('class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical"', $res);
         $res = self::makeDiv('class = "col-3"', $res);
@@ -282,6 +287,18 @@ final class FormConstructor
     }
 
     /**
+     * Crea un <script> con las opciones especificadas que contiene el string especificado
+     *
+     * @param string $opciones
+     * @param string $contenido
+     * @return string
+     */
+    private static function makeScript($opciones, $contenido)
+    {
+        return self::makeWrapper('script', $opciones, $contenido);
+    }
+
+    /**
      * Crea un <button> con las opciones especificadas que contiene el string especificado
      *
      * @param string $opciones
@@ -330,12 +347,13 @@ final class FormConstructor
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
      * @param boolean $oculto
+     * @throws Exception
      * @return string
      */
     private static function makeSimpleInput($item, $datos, $oculto)
     {
         $class = 'form-control';
-        if($oculto){
+        if ($oculto) {
             $class = $class . ' oculto';
         }
         $contenido = $item->getEtiqueta();
@@ -345,11 +363,24 @@ final class FormConstructor
             $contenido = $contenido . 'required ';
         }
         $value = self::checkSimpleValue($item, $datos);
-        if($value == TipoColumna::NO_DATE){
+        if ($value == TipoColumna::NO_DATE || $value == TipoItem::UNSPECIFIED) {
             $value = '';
         }
-        $contenido = $contenido . 'value="' . $value . '" ';
-        $contenido = $contenido . $item->getOpciones() . '>';
+        if ($item->getTipo() === TipoItem::verifyPassword()) {
+            $contenido = $contenido . 'oninput="check(this)" />' . "\n";
+            $tmp = "function check(input) {
+                    if (input.value != document.getElementsByName('". $item->getNombre() . "')[0].value) {
+                        input.setCustomValidity('Password Must be Matching.');
+                    } else {
+                        // input is valid -- reset the error message
+                        input.setCustomValidity('');
+                    }
+                }"; //Para evitar warnings
+            $contenido = $contenido . self::makeScript("language='javascript' type='text/javascript'" , $tmp);
+        } else {
+            $contenido = $contenido . 'value="' . $value . '" ';
+            $contenido = $contenido . $item->getOpciones() . '>';
+        }
         $contenido = self::makeLabel('', $contenido);
         return $contenido;
     }
@@ -361,6 +392,7 @@ final class FormConstructor
      * @param DatosTabla[] $datos
      * @param boolean $oculto
      * @param boolean $revelador
+     * @throws Exception
      * @return string
      */
     private static function makeMultiInput($item, $datos, $oculto, $revelador)
@@ -418,6 +450,7 @@ final class FormConstructor
      *
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
+     * @throws Exception
      * @return string
      */
     private static function checkValue($item, $datos)
@@ -425,6 +458,9 @@ final class FormConstructor
         $contenido = '';
         if ($item->getTipo()->getTipoInput() === TipoItem::CHECKBOX || $item->getTipo()->getTipoInput() === TipoItem::RADIO){
             $contenido = implode(', ', self::checkMultiValues($item, $datos));
+        }
+        else if($item->getTipo() === TipoItem::informe()){
+            $contenido = Informes::getInforme($item, $datos);
         }
         else if($item->getTipo()->getTipoInput() != null){
             $contenido = self::checkSimpleValue($item, $datos);
@@ -437,6 +473,7 @@ final class FormConstructor
      *
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
+     * @throws Exception
      * @return string
      */
     private static function checkSimpleValue($item, $datos)
@@ -445,10 +482,9 @@ final class FormConstructor
         if ($datos != NULL) {
             $thisDatos = self::getItemData($item, $datos);
             if ($thisDatos != NULL) {
-                if (array_key_exists($item->getNombre(), $thisDatos->getCampos())) {
-                    if ($thisDatos->getCampos()[$item->getNombre()] != NULL) {
-                        $res = $thisDatos->getCampos()[$item->getNombre()];
-                    }
+                $campo = $thisDatos->getCampo($item->getColumna());
+                if(!empty($campo)){
+                    $res = $campo;
                 }
             }
         }
@@ -460,6 +496,7 @@ final class FormConstructor
      *
      * @param ItemFormulario $item
      * @param DatosTabla[] $datos
+     * @throws Exception
      * @return string[]
      */
     private static function checkMultiValues($item, $datos)
@@ -468,29 +505,7 @@ final class FormConstructor
         if ($datos != NULL) {
             $thisDatos = self::getItemData($item, $datos);
             if (!empty($thisDatos)) {
-                if ($item->getTipo()->getTipoInput() === TipoItem::CHECKBOX) {
-                    if (array_key_exists($item->getNombre(), $thisDatos->getCampos())) {
-                        if ($thisDatos->getCampos()[$item->getNombre()] != NULL) {
-                            $res = $thisDatos->getCampos()[$item->getNombre()];
-                        }
-                    }
-                } else if ($item->getTipo() === TipoItem::radio()) {
-                    if (array_key_exists($item->getNombre(), $thisDatos->getCampos())) {
-                        if ($thisDatos->getCampos()[$item->getNombre()] != NULL) {
-                            $res[] = $thisDatos->getCampos()[$item->getNombre()];
-                        }
-                    }
-                } else if ($item->getTipo() === TipoItem::boolean()) {
-                    if (array_key_exists($item->getNombre(), $thisDatos->getCampos())) {
-                        if ($thisDatos->getCampos()[$item->getNombre()] != NULL) {
-                            if ($thisDatos->getCampos()[$item->getNombre()]) {
-                                $res[] = TipoItem::SI;
-                            } else {
-                                $res[] = TipoItem::NO;
-                            }
-                        }
-                    }
-                } else if ($item->getTipo() === TipoItem::siNo()) {
+                if ($item->getTipo() === TipoItem::siNo()) {
                     $found = false;
                     foreach ($item->getNest() as $subitem){
                         if ($subitem->getTipo() === TipoItem::checkbox() || self::checkValue($subitem, $datos)!=null) {
@@ -509,6 +524,24 @@ final class FormConstructor
                     }
                     else{
                         $res[] = TipoItem::SIN_CIRUGIA;
+                    }
+                }
+                else {
+                    $campo = $thisDatos->getCampo($item->getColumna());
+                    if ($item->getTipo()->getTipoInput() === TipoItem::CHECKBOX) {
+                        if(!empty($campo)){
+                            $res = $campo;
+                        }
+                    } else if ($item->getTipo() === TipoItem::radio()) {
+                        if(!empty($campo)){
+                            $res[] = $campo;
+                        }
+                    } else if ($item->getTipo() === TipoItem::boolean()) {
+                        if ($campo) {
+                            $res[] = TipoItem::SI;
+                        } else {
+                            $res[] = TipoItem::NO;
+                        }
                     }
                 }
             } else {
