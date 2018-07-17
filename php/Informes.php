@@ -428,7 +428,7 @@ final class Informes
     {
         $faltan = array();
         foreach ($columnas as $columna) {
-            if ($columna->getTipo() !== TipoColumna::multString()) {
+            if ($columna->getTipo() !== TipoColumna::multString() && $columna->getTipo() !== TipoColumna::bool()) {
                 if (empty($campos[$columna->getNombre()])) {
                     $faltan[] = $columna->getNombre();
                 }

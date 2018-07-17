@@ -19,7 +19,7 @@ final class AccesoBD
      */
     public static function loadTabla($datos)
     {
-        $statement = self::makeSelect('*', $datos, $datos->getTabla()->getColumnas());
+        $statement = self::makeSelect('*', $datos, $datos->getTabla()->getColumnas(), '');
         try {
             $stmt = self::executeStatement($statement);
             $resultado = $stmt->fetchAll();
@@ -105,7 +105,7 @@ final class AccesoBD
      */
     public static function checkTabla($datos)
     {
-        $statement = self::makeSelect('1', $datos, $datos->getTabla()->getClaves());
+        $statement = self::makeSelect('1', $datos, $datos->getTabla()->getClaves(), '');
         try {
             $stmt = self::executeStatement($statement);
             $resultado = $stmt->fetchAll();
@@ -130,6 +130,7 @@ final class AccesoBD
         if ($arr[0] != 0) {
             throw new Exception(print_r($arr, true));
         }
+        Utils::console_log('Ejecutando: ' . $statement);
         return $stmt;
     }
 
@@ -164,8 +165,12 @@ final class AccesoBD
                 } else if($columna->getTipo() !== TipoColumna::control()) {
                     $values[] = 'NULL';
                 }
+                else{
+                    $values[] = '0';
+                }
             }
         }
+        Utils::console_log('Keys: ' . print_r($keys, true) . 'values : ' . print_r($values, true) );
         $statement = $statement . implode(', ', $keys);
         $multi = $datos->getTabla()->getMultivalued();
         if ($multi != null) {
@@ -193,13 +198,14 @@ final class AccesoBD
      * @param string $itemsToSelect
      * @param DatosTabla $datos
      * @param Columna[] $columnas
+     * @param string $opciones
      * @throws Exception
      * @return string
      */
-    private static function makeSelect($itemsToSelect, $datos, $columnas)
+    private static function makeSelect($itemsToSelect, $datos, $columnas, $opciones)
     {
         $statement = 'SELECT ' . $itemsToSelect . ' FROM ' . $datos->getTabla()->getNombreTabla();
-        return $statement . self::makeWhere($datos, $columnas);
+        return $statement . self::makeWhere($datos, $columnas) . $opciones . ';';
     }
 
     /**
@@ -233,7 +239,7 @@ final class AccesoBD
             }
         }
         $statement = $statement . implode(', ', $sets);
-        return $statement . self::makeWhere($datos, $datos->getTabla()->getClaves());
+        return $statement . self::makeWhere($datos, $datos->getTabla()->getClaves()) . ';';
     }
 
     /**
@@ -246,7 +252,7 @@ final class AccesoBD
     private static function makeDelete($datos)
     {
         $statement = 'DELETE FROM ' . $datos->getTabla()->getNombreTabla();
-        return $statement . self::makeWhere($datos, $datos->getTabla()->getClaves());
+        return $statement . self::makeWhere($datos, $datos->getTabla()->getClaves()) . ';';
     }
 
     /**
@@ -267,20 +273,21 @@ final class AccesoBD
             }
         }
         if (!empty($wheres)) {
-            $statement = $statement . ' WHERE ' . implode(' AND ', $wheres);;
+            $statement = $statement . ' WHERE ' . implode(' AND ', $wheres);
         }
-        return $statement . ';';
+        return $statement;
     }
 
     /**
-     * Devuelve todos los items de la tabla, solo usando las claves
+     * Devuelve todos los items de la tabla, solo usando las claves, con las opcioens que se especifiquen
      *
      * @param DatosTabla $datos
+     * @param string $opciones
      * @throws Exception
      * @return array[]
      */
-    private static function getAll($datos){
-        return self::executeStatement(self::makeSelect('*', $datos, $datos->getTabla()->getColumnas()))->fetchAll();
+    private static function getAll($datos, $opciones){
+        return self::executeStatement(self::makeSelect('*', $datos, $datos->getTabla()->getColumnas(), $opciones))->fetchAll();
     }
 
     /**
@@ -292,7 +299,7 @@ final class AccesoBD
     public static function getUsuarios(){
         $res = array();
         $datos = new DatosTabla(Tabla::Usuarios());
-        foreach(self::getAll($datos) as $item){
+        foreach(self::getAll($datos, '') as $item){
             $res[$item[Columna::nombreUsuario()->getColumna()]] = $item[Columna::nombreUsuario()->getColumna()];
         }
         return $res;
@@ -307,8 +314,31 @@ final class AccesoBD
     public static function getFiliaciones(){
         $datos = DatosTabla::makeWithSessionKeys(Tabla::Filiaciones());
         $res = array();
-        foreach(self::getAll($datos) as $item){
-            $res[$item[Columna::nasi()->getColumna()]] = $item[Columna::nasi()->getColumna()];
+        foreach(self::getAll($datos, '') as $item){
+            $entry = $item[Columna::nasi()->getColumna()];
+            $datosDiagnostico = DatosTabla::makeWithSessionKeys(Tabla::Diagnosticos());
+            $datosDiagnostico->setCampo($entry, Columna::nasi());
+            $resDiagnosticos = self::getAll($datosDiagnostico, ' ORDER BY ' . Columna::fechaDiagnostico()->getColumna() . ' DESC LIMIT 1 ');
+            $readableEntry = $entry;
+            if(!empty($resDiagnosticos)){
+                $diagnostico = $resDiagnosticos[0];
+                if(!empty($diagnostico[Columna::sexo()->getColumna()]) && !empty($diagnostico[Columna::edad()->getColumna()])){
+                    $readableEntry = $readableEntry . ' - ' . $diagnostico[Columna::sexo()->getColumna()] . ', ' . $diagnostico[Columna::edad()->getColumna()] . ' años';
+                    if(!empty($diagnostico[Columna::talla()->getColumna()])){
+                        $readableEntry = $readableEntry . ', ' . $diagnostico[Columna::talla()->getColumna()] . ' cm de altura';
+                    }
+                    if(!empty($diagnostico[Columna::peso()->getColumna()])){
+                        $readableEntry = $readableEntry . ', ' . $diagnostico[Columna::peso()->getColumna()] . ' kg de peso';
+                    }
+                }
+                else{
+                    $readableEntry = $readableEntry . ' - Su diagnóstico más reciente (' . $diagnostico[Columna::fechaDiagnostico()->getColumna()] . ') no tiene especificados sexo y edad';
+                }
+            }
+            else{
+                $readableEntry = $readableEntry . ' - Sin diagnósticos';
+            }
+            $res[$entry] = $readableEntry;
         }
         return $res;
     }
@@ -323,11 +353,11 @@ final class AccesoBD
         $datos = DatosTabla::makeWithSessionKeys(Tabla::Diagnosticos());
         $causas = DatosTabla::makeWithSessionKeys(Tabla::CausasIntervencion());
         $res = array();
-        foreach(self::getAll($datos) as $item){
+        foreach(self::getAll($datos, '') as $item){
             $entry = $item[Columna::fechaDiagnostico()->getColumna()];
             $causas->setCampo($entry, Columna::fechaDiagnostico());
             $readableEntry = Utils::readableDate($entry);
-            $resCausas = self::getAll($causas);
+            $resCausas = self::getAll($causas, '');
             if(empty($resCausas)) {
                 $readableEntry = $readableEntry . ' - Sin causas de intervención especificadas';
             }
@@ -353,22 +383,22 @@ final class AccesoBD
         $datos = DatosTabla::makeWithSessionKeys(Tabla::Intervenciones());
         $tipos = DatosTabla::makeWithSessionKeys(Tabla::TiposIntervencion());
         $res = array();
-        foreach(self::getAll($datos) as $item){
+        foreach(self::getAll($datos, '') as $item){
             $entry = $item[Columna::fechaIntervencion()->getColumna()];
             $tipos->setCampo($entry, Columna::fechaIntervencion());
-            $entry = Utils::readableDate($entry);
-            $resTipos = self::getAll($tipos);
+            $readableEntry = Utils::readableDate($entry);
+            $resTipos = self::getAll($tipos, '');
             if(empty($resTipos)) {
-                $entry = $entry . ' - Sin tipos de intervención especificados';
+                $readableEntry = $readableEntry . ' - Sin tipos de intervención especificados';
             }
             else{
                 $entries = array();
                 foreach ($resTipos as $tipo){
                     $entries[] = $tipo[Columna::tiposIntervencion()->getColumna()];
                 }
-                $entry = $entry . ' - Tipos de intervención: ' . implode(', ', $entries);
+                $readableEntry = $readableEntry . ' - Tipos de intervención: ' . implode(', ', $entries);
             }
-            $res[$item[Columna::fechaIntervencion()->getColumna()]] = $entry;
+            $res[$entry] = $readableEntry;
         }
         return $res;
     }
