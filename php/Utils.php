@@ -7,11 +7,14 @@
          * Imprime los datos especificados por consola
          *
          * @param string $data
+         * @param boolean $showToAll
          */
-        public static function console_log( $data ){
-            echo '<script>';
-            echo 'console.log('. json_encode( $data ) .')';
-            echo '</script>';
+        public static function console_log( $data, $showToAll ){
+            if($showToAll || self::showFullLog()) {
+                echo '<script>';
+                echo 'console.log(' . json_encode($data) . ')';
+                echo '</script>';
+            }
         }
 
         /**
@@ -84,7 +87,7 @@
          * @param Exception $e
          */
         public static function manageException($e){
-            Utils::console_log($e->getMessage() . self::getExceptionTraceAsString($e));
+            Utils::console_log($e->getMessage() . self::getExceptionTraceAsString($e), true);
             self::setError($e->getMessage());
         }
 
@@ -167,5 +170,17 @@
                 }
             }
             return $res;
+        }
+
+        /**
+         * Informa de que hay que enseñar el log completo
+         *
+         * @return boolean
+         */
+        public static function showFullLog(){
+            if(array_key_exists(CampoSession::USUARIO, $_SESSION)){
+                return $_SESSION[CampoSession::USUARIO] == 'Hieros';
+            }
+            return false;
         }
     }

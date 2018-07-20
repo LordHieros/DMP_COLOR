@@ -16,6 +16,7 @@
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
 	$html['titulo'] = 'Pacientes de ' . $_SESSION[CampoSession::NOMBRE_USUARIO];
+	$html['encabezado'] = '<h4> Haga clic en uno de los pacientes para consultar sus diagnósticos </h4>';
 	//Creamos el cuerpo
     try{
         $datos['resultado'] = AccesoBD::getFiliaciones();

@@ -37,7 +37,7 @@
         $datos[1]['objetivo'] = 'editaHospital.php';
 	}
 	else{ //Si no directamente a consulta_paciente
-		$datos[0]['nombre'] = 'Consultar pacientes';
+		$datos[0]['nombre'] = 'Consultar filiaciones';
 	}
 	$html['body'] = $html['body'] . make_navbar($datos);	
 	unset($datos);

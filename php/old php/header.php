@@ -358,6 +358,6 @@
 		'</div>
 		</body>
 		</html>';
-        Utils::console_log('SESSION: ' . print_r($_SESSION, true));
+        Utils::console_log('SESSION: ' . print_r($_SESSION, true), true);
 		return $pagina;
 	}

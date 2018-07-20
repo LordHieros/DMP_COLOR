@@ -162,7 +162,7 @@ final class Comprobaciones
             } else {
                 $datos = Modelo::loadModelo(Modelo::modeloIntervencion(), [Columna::nasi()->getNombre() => $_SESSION[CampoSession::NASI], Columna::fechaDiagnostico()->getNombre() => $_SESSION[CampoSession::FECHA_DIAGNOSTICO], Columna::fechaIntervencion()->getNombre() => $fechaIntervencion])[Tabla::Intervenciones()->getNombreTabla()];
                 if ($datos != null) { //Comprobar si existe diagnostico
-                    $_SESSION[CampoSession::ERROR] = "Ya existe una intervneción programada para " . $fechaIntervencion;
+                    $_SESSION[CampoSession::ERROR] = "Ya existe una intervención programada para " . $fechaIntervencion;
                 } else {
                     $_SESSION[CampoSession::FECHA_INTERVENCION] = $fechaIntervencion;
                     $datos = new DatosTabla(Tabla::Intervenciones());
@@ -184,7 +184,7 @@ final class Comprobaciones
      */
     public static function editaDiagnostico()
     {
-        return self::guardaFormulario(Formulario::formDiagnostico(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
+        return self::guardaFormulario(Formulario::formDiagnostico());
     }
 
     /**
@@ -201,7 +201,7 @@ final class Comprobaciones
                 $_SESSION[CampoSession::ID_HOSPITAL] = $_POST[ItemFormulario::idHospital()->getNombrePost()];
             }
         }
-        return self::guardaFormulario(Formulario::formHospital(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
+        return self::guardaFormulario(Formulario::formHospital());
     }
 
     /**
@@ -212,7 +212,7 @@ final class Comprobaciones
      */
     public static function editaIntervencion()
     {
-        return self::guardaFormulario(Formulario::formIntervencion(), $_SESSION[CampoSession::USUARIO] == 'Hieros');
+        return self::guardaFormulario(Formulario::formIntervencion());
     }
 
 
@@ -220,18 +220,18 @@ final class Comprobaciones
      * Guarda los datos del formulario
      *
      * @param Formulario $form
-     * @param boolean $log
      * @throws Exception
      * @return boolean
      */
-    private static function guardaFormulario($form, $log){
+    private static function guardaFormulario($form){
+        $log = Utils::showFullLog();
         if (isset($_POST[$form->getSubmit()])) {
             if($log) {
                 foreach (array_keys($_POST) as $dato)
                     if (!empty($_POST[$dato]))
-                        Utils::console_log('POST[' . $dato . ']: ' . print_r($_POST[$dato], true));
+                        Utils::console_log('POST[' . $dato . ']: ' . print_r($_POST[$dato], true), false);
                 foreach ($form->makeDatos() as $dato)
-                    Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true));
+                    Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true), false);
             }
             $form->saveToDatabase();
             return !$log;

@@ -10,6 +10,7 @@
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
 	$html['titulo'] = 'Usuarios de la plataforma';
+	$html['encabezado'] = '<h4> Haga clic en el nombre de uno de los usuarios para consultar sus filiaciones </h4>';
 	//Creamos el cuerpo
     try {
         $datos['resultado'] = AccesoBD::getUsuarios();

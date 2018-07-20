@@ -24,7 +24,7 @@ final class FormConstructor
         require_once 'Utils.php';
         foreach ($datos as $dato) {
             if($dato!= null) {
-                Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true));
+                Utils::console_log('Datos[' . $dato->getTabla()->getNombreTabla() . ']: ' . print_r($dato->getCampos(), true), false);
             }
         }
         $res = '';

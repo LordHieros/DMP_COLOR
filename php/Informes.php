@@ -46,10 +46,16 @@ final class Informes
         $campos = self::getCampos($datos, $columnas);
         $faltan = self::faltanColumnas($campos, $columnasNecesarias);
         if(empty($faltan)){
-            return self::calculoCLS($campos[Columna::edad()->getNombre()], $campos[Columna::sexo()->getNombre()], $campos[Columna::asa()->getNombre()],
+            $cls = self::calculoCLS($campos[Columna::edad()->getNombre()], $campos[Columna::sexo()->getNombre()], $campos[Columna::asa()->getNombre()],
             $campos[Columna::talla()->getNombre()], $campos[Columna::peso()->getNombre()], $campos[Columna::intoxicaciones()->getNombre()],
             $campos[Columna::neoadyuvancia()->getNombre()], $campos[Columna::motivos_Urgente()->getNombre()], $campos[Columna::distanciaMargenDistal()->getNombre()],
             $campos[Columna::intervencionesAsociadas()->getNombre()], 0, $campos[Columna::duracion()->getNombre()]);
+			if($cls>=11){
+				return $cls . ' - existe un riesgo significativo';
+			}
+			else{
+				return $cls . ' - no existe un riesgo significativo';
+			}
         }
         else{
             return 'Faltan campos necesarios: ' . implode(', ', $faltan);
@@ -384,7 +390,6 @@ final class Informes
     private static function completeDatos($datos, $columnas){
         foreach($columnas as $columna) {
             if(!array_key_exists($columna->getTabla()->getNombreTabla(), $datos)){
-                Utils::console_log("Adding " . $columna->getTabla()->getNombreTabla());
                 $datos[$columna->getTabla()->getNombreTabla()] = AccesoBD::loadTabla(DatosTabla::makeWithSessionKeys($columna->getTabla()));
             }
         }
@@ -401,7 +406,6 @@ final class Informes
         $datos = self::completeDatos($datos, $columnas);
         $campos = array();
         foreach ($columnas as $columna) {
-            Utils::console_log("Looking " . $columna->getTabla()->getNombreTabla() . $columna->getNombre());
             if(!empty($datos[$columna->getTabla()->getNombreTabla()])) {
                 $campo = $datos[$columna->getTabla()->getNombreTabla()]->getCampo($columna);
                 if (!empty($campo)) {
