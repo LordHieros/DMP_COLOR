@@ -20,7 +20,7 @@
     }
     //EMPIEZA EL HTML
     //Ponemos el título de la página
-    $html['titulo'] = 'Crear intervención para el diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' del paciente de NASI ' . $_SESSION[CampoSession::NASI];
+    $html['titulo'] = 'Crear intervención para el diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' de la filiación de NASI ' . $_SESSION[CampoSession::NASI];
     //Creamos el cuerpo
     try {
         $form = Formulario::formCreaIntervencion()->makeForm();

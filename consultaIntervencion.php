@@ -14,7 +14,7 @@
 
     //EMPIEZA EL HTML
     //Ponemos el título de la página
-    $html['titulo'] = 'Datos de la intervención del ' . $_SESSION[CampoSession::FECHA_INTERVENCION] . ' del diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' del paciente de NASI ' . $_SESSION[CampoSession::NASI];
+    $html['titulo'] = 'Datos de la intervención del ' . $_SESSION[CampoSession::FECHA_INTERVENCION] . ' del diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' de la filiación de NASI ' . $_SESSION[CampoSession::NASI];
     //Creamos el cuerpo
     try {
         $view = Formulario::formIntervencion()->makeView();

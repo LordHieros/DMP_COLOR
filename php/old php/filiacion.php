@@ -8,7 +8,7 @@
 	$stmt = Conexion::getpdo()->prepare('SELECT * FROM Filiaciones WHERE NASI=:nasi;');
 	$stmt->execute(['nasi' => $_SESSION[CampoSession::NASI]]);
 	$resultado = $stmt->fetchAll();
-	if (count($resultado) > 0) { //Comprobar si existe paciente
+	if (count($resultado) > 0) { //Comprobar si existe filiación
 		if($resultado[0]["cerrado"]==1){ //Si se llega a un expediente cerrado se redirige a la consulta
 			header("location: consultaFiliacion.php");
 			die;
@@ -24,10 +24,10 @@
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
 	if($editar){
-		$html['titulo'] = 'Editar filiación del paciente ' . $_SESSION[CampoSession::NASI];
+		$html['titulo'] = 'Editar filiación de la filiación ' . $_SESSION[CampoSession::NASI];
 	}
 	else{
-		$html['titulo'] = 'Crear filiación del paciente ' . $_SESSION[CampoSession::NASI];
+		$html['titulo'] = 'Crear filiación de la filiación ' . $_SESSION[CampoSession::NASI];
 	}
 	//Creamos el cuerpo
 	$html['body'] = '';

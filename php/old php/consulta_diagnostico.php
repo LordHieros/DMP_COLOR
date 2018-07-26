@@ -5,7 +5,7 @@
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
-	$html['titulo'] = 'Datos de diagnóstico del paciente';
+	$html['titulo'] = 'Datos de diagnóstico de la filiación';
 	//Creamos el cuerpo, imprimiendo y borrando mensaje de error de haber
 	if(isset($_SESSION[CampoSession::ERROR])){
 		$html['body'] = '<h4 class="error">' . $_SESSION[CampoSession::ERROR] . '</h4>';
@@ -14,7 +14,7 @@
 	else{
 		$html['body'] = '';
 	}
-	//Buscamos el paciente en la base de datos
+	//Buscamos la filiación en la base de datos
 	require 'php/Conexion.php';
 	$stmt = Conexion::getpdo()->prepare('SELECT * FROM Diagnosticos WHERE Filiaciones_NASI=:nasi AND fecha=:fecha;');
 	$res = $stmt->execute(['nasi' => $_SESSION[CampoSession::NASI], 'fecha' => $_SESSION[CampoSession::FECHA_DIAGNOSTICO]]);

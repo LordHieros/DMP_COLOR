@@ -21,7 +21,7 @@
 				$stmt->execute(['nasi' => $nasi, 'fecha' => $fecha]);
 				$resultado = $stmt->fetchAll();
 				if (count($resultado) > 0){ //En caso de que se intente introducir una fecha ya existente se devuelve un mensaje de error.
-					$_SESSION[CampoSession::ERROR] = "Ya existe un diagnóstico para el paciente " . $nasi . " con fecha " . $fecha;
+					$_SESSION[CampoSession::ERROR] = "Ya existe un diagnóstico para la filiación " . $nasi . " con fecha " . $fecha;
 					header('location: ../panel.php');
 					die;
 				}

@@ -130,7 +130,7 @@ final class AccesoBD
         if ($arr[0] != 0) {
             throw new Exception(print_r($arr, true));
         }
-        Utils::console_log('Ejecutando: ' . $statement);
+        Utils::console_log('Ejecutando: ' . $statement, false);
         return $stmt;
     }
 
@@ -170,7 +170,6 @@ final class AccesoBD
                 }
             }
         }
-        Utils::console_log('Keys: ' . print_r($keys, true) . 'values : ' . print_r($values, true) );
         $statement = $statement . implode(', ', $keys);
         $multi = $datos->getTabla()->getMultivalued();
         if ($multi != null) {
@@ -306,7 +305,7 @@ final class AccesoBD
     }
 
     /**
-     * Devuelve lista de filiaciones de pacientes
+     * Devuelve lista de filiaciones
      *
      * @throws Exception
      * @return string[]
@@ -344,7 +343,7 @@ final class AccesoBD
     }
 
     /**
-     * Devuelve lista de diagnosticos del paciente
+     * Devuelve lista de diagnosticos de la filiación
      *
      * @throws Exception
      * @return string[]
@@ -374,7 +373,7 @@ final class AccesoBD
     }
 
     /**
-     * Devuelve lista de intervenciones del paciente
+     * Devuelve lista de intervenciones de la filiación
      *
      * @throws Exception
      * @return string[]

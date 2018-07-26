@@ -5,7 +5,7 @@
     include_once("php/Utils.php");
 
     Comprobaciones::compruebaNombre(true);
-	if(isset($_SESSION[CampoSession::NOMBRE_USUARIO])){ Utils::headTo('seleccionPaciente.php', null); }
+	if(isset($_SESSION[CampoSession::NOMBRE_USUARIO])){ Utils::headTo('seleccionFiliacion.php', null); }
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página

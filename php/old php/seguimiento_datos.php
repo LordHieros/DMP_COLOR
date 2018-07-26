@@ -14,7 +14,7 @@
 		$stmt->execute(['nasi' => $_SESSION[CampoSession::NASI], 'fechaDiagnostico' => $_SESSION[CampoSession::FECHA_DIAGNOSTICO], 'fecha' => $_POST["fecha"]]);
 		$resultado = $stmt->fetchAll();
 		if(count($resultado) > 0){
-			$_SESSION[CampoSession::ERROR] = 'Ya existe un seguimiento con esa fecha para este diagnóstico de este paciente';
+			$_SESSION[CampoSession::ERROR] = 'Ya existe un seguimiento con esa fecha para este diagnóstico de esta filiación';
 		}
 		else{ //Inserta el seguimiento en la base de datos, junto con sus complicaciones
 			$stmt = Conexion::getpdo()->prepare('INSERT INTO Seguimientos(Filiaciones_NASI, Diagnosticos_fecha, fecha) VALUES (:nasi, :fechaDiagnostico, :fecha);');

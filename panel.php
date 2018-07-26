@@ -36,7 +36,7 @@
         $datos[1]['tipo'] = 'redirección';
         $datos[1]['objetivo'] = 'editaHospital.php';
 	}
-	else{ //Si no directamente a consulta_paciente
+	else{ //Si no directamente a consulta_filiacion
 		$datos[0]['nombre'] = 'Consultar filiaciones';
 	}
 	$html['body'] = $html['body'] . make_navbar($datos);	

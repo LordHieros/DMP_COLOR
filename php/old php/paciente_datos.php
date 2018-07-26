@@ -9,7 +9,7 @@
 	$stmt->execute(['nhc' => $_POST["NHC"]]);
 	$resultado = $stmt->fetchAll();
 	if(count($resultado) > 0){
-		$_SESSION[CampoSession::MENSAJE] = '<span class="negrita">Ya existe ficha para este paciente.</span> El NHC introducido (' . $resultado[0]['NHC'] . ') ya existe en la base de datos y tiene asociado el NASI ' . $resultado[0]['NASI'] . '.';
+		$_SESSION[CampoSession::MENSAJE] = '<span class="negrita">Ya existe ficha para esta filiación.</span> El NHC introducido (' . $resultado[0]['NHC'] . ') ya existe en la base de datos y tiene asociado el NASI ' . $resultado[0]['NASI'] . '.';
 	}
 	else{ //Genera un nasi aleatorio, comprueba si existe en la base de datos y en caso afirmativo genera uno nuevo
 		$stmt = Conexion::getpdo()->prepare('SELECT * FROM Claves where NASI=:nasi;');
@@ -36,11 +36,11 @@
 	}
 	if($error == true){
 		$_SESSION[CampoSession::ERROR] = '<span class="error">Ha habido un problema en la introducción de datos, error: ' . $stmt->errorInfo() . '</span>';
-		header("Location: ../seleccionPaciente.php");
+		header("Location: ../seleccionFiliacion.php");
 	}
 	else{
 		$_SESSION[CampoSession::NASI] = $nasi;
-		header("Location: ../seleccionPaciente.php");
+		header("Location: ../seleccionFiliacion.php");
 		//WhyTF this doesn't work? ERR_UNSAFE_REDIRECT
 		//header("Location: ../consultaFiliacion.php");
 	}

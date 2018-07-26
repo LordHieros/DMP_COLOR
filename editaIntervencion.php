@@ -21,7 +21,7 @@
 	//Añadimos opciones de cabecera
 	$html['head'] = '<script src="./js/Mostrar.js"> </script>';
 	//Ponemos el título de la página
-	$html['titulo'] = 'Datos de la intervención del ' . $_SESSION[CampoSession::FECHA_INTERVENCION] . ' del diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' del paciente ' . $_SESSION[CampoSession::NASI];
+	$html['titulo'] = 'Datos de la intervención del ' . $_SESSION[CampoSession::FECHA_INTERVENCION] . ' del diagnóstico del ' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . ' de la filiación ' . $_SESSION[CampoSession::NASI];
 	//Creamos el cuerpo
 	try {
 		$form = Formulario::formIntervencion()->makeForm();

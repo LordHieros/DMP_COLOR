@@ -9,8 +9,6 @@ final class Formulario
 
     private $items;
 
-    private $claves;
-
     private $action;
     
     private $legend;
@@ -29,16 +27,6 @@ final class Formulario
     function getItems()
     {
         return $this->items;
-    }
-
-    /**
-     * Devuelve las claves del formulario (guardadas en session)
-     *
-     * @return string[]
-     */
-    function getClaves()
-    {
-        return $this->claves;
     }
 
     /**

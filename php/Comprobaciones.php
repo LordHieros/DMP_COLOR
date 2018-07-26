@@ -328,7 +328,7 @@ final class Comprobaciones
             $datos->setCampo($_SESSION[CampoSession::FECHA_DIAGNOSTICO], Columna::fechaDiagnostico());
             $datos->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
             if (!AccesoBD::checkTabla($datos)) {
-                $error = 'El paciente elegido (' . $_SESSION[CampoSession::NASI] . ')no tiene un diagnóstico con esa fecha(' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . '), consulte con el administrador';
+                $error = 'LA filiación elegida (' . $_SESSION[CampoSession::NASI] . ') no tiene un diagnóstico con esa fecha (' . $_SESSION[CampoSession::FECHA_DIAGNOSTICO] . '), consulte con el administrador';
                 Utils::headTo('panel.php', $error);
             }
         }
@@ -361,7 +361,7 @@ final class Comprobaciones
             $datos->setCampo($_SESSION[CampoSession::FECHA_DIAGNOSTICO], Columna::fechaDiagnostico());
             $datos->setCampo($_SESSION[CampoSession::NASI], Columna::nasi());
             if (!AccesoBD::checkTabla($datos)) {
-                $error = 'El paciente elegido (' . $_SESSION[CampoSession::NASI] . ')no tiene una intervención con esa fecha(' . $_SESSION[CampoSession::FECHA_INTERVENCION] . '), consulte con el administrador';
+                $error = 'La filiación elegida (' . $_SESSION[CampoSession::NASI] . ') no tiene una intervención con esa fecha (' . $_SESSION[CampoSession::FECHA_INTERVENCION] . '), consulte con el administrador';
                 Utils::headTo('panel.php', $error);
             }
         }

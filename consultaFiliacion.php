@@ -17,7 +17,7 @@
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
-	$html['titulo'] = 'Datos del paciente de NASI ' . $_SESSION[CampoSession::NASI];
+	$html['titulo'] = 'Datos de la filiación de NASI ' . $_SESSION[CampoSession::NASI];
 	//Creamos el cuerpo
 	try {
 		$datos['resultado'] = AccesoBD::getDiagnosticos();
@@ -29,12 +29,12 @@
 	$datos['titulo'] = 'Diagnósticos:';
 	$datos['clave'] = CampoSession::FECHA_DIAGNOSTICO;
 	$datos['destino'] = '';
-	$datos['vacio'] = 'Este paciente no tiene diagnósticos';
+	$datos['vacio'] = 'la filiación no tiene diagnósticos';
 	$html['body'] = $html['body'] . make_eleccion($datos);
 	unset($datos);
 	//Crear las opciones
 	$opcion['tipo'] = 'redirección';
-	$opcion['objetivo'] = 'seleccionPaciente.php';
+	$opcion['objetivo'] = 'seleccionFiliacion.php';
 	$opcion['nombre'] = 'Volver';
 	$datos[] = $opcion;
 	unset($opcion);

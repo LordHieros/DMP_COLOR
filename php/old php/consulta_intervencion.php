@@ -5,7 +5,7 @@
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
-	$html['titulo'] = 'Datos de intervención del paciente';
+	$html['titulo'] = 'Datos de intervención de la filiación';
 	//Creamos el cuerpo, imprimiendo y borrando mensaje de error de haber
 	if(isset($_SESSION[CampoSession::ERROR])){
 		$html['body'] = '<h4 class="error">' . $_SESSION[CampoSession::ERROR] . '</h4>';
@@ -14,12 +14,12 @@
 	else{
 		$html['body'] = '';
 	}
-	//Buscamos el paciente en la base de datos
+	//Buscamos la filiación en la base de datos
 	require 'php/Conexion.php';
 	$stmt = Conexion::getpdo()->prepare('SELECT * FROM Intervenciones WHERE Filiaciones_NASI=:nasi AND Diagnosticos_fecha=:fechaDiagnostico AND fecha=:fechaIntervencion;');
 	$res = $stmt->execute(['nasi' => $_SESSION[CampoSession::NASI], 'fechaDiagnostico' => $_SESSION[CampoSession::FECHA_DIAGNOSTICO], 'fechaIntervencion' => $_SESSION[CampoSession::FECHA_INTERVENCION]]);
 	$resultado = $stmt->fetchAll();
-	//Este valor nos permite saber si existen datos del paciente o no, lo que nos permitirá saber que imprimir, que selects hacer...
+	//Este valor nos permite saber si existen datos de la filiación o no, lo que nos permitirá saber que imprimir, que selects hacer...
 	$hay_Datos = (count($resultado)>0);
 	if($hay_Datos){
 		//Este valor nos permite saber si la intervención es editable

@@ -20,7 +20,7 @@
     }
     //EMPIEZA EL HTML
     //Ponemos el título de la página
-    $html['titulo'] = 'Crear diagnóstico para el paciente de NASI ' . $_SESSION[CampoSession::NASI];
+    $html['titulo'] = 'Crear diagnóstico para la filiación de NASI ' . $_SESSION[CampoSession::NASI];
     //Creamos el cuerpo
     try {
         $form = Formulario::formCreaDiagnostico()->makeForm();

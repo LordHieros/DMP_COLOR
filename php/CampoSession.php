@@ -25,7 +25,7 @@ final class CampoSession
     const NOMBRE_USUARIO = "nombreUsuario";
 
     /**
-     * Donde se almacena el nasi del paciente que se está consultando
+     * Donde se almacena el nasi de la filiación que se está consultando
      *
      * @var string
      */

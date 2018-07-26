@@ -15,8 +15,8 @@
 	
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
-	$html['titulo'] = 'Pacientes de ' . $_SESSION[CampoSession::NOMBRE_USUARIO];
-	$html['encabezado'] = '<h4> Haga clic en uno de los pacientes para consultar sus diagnósticos </h4>';
+	$html['titulo'] = 'Filiaciones de ' . $_SESSION[CampoSession::NOMBRE_USUARIO];
+	$html['encabezado'] = '<h4> Haga clic en una de las filiaciones para consultar sus diagnósticos </h4>';
 	//Creamos el cuerpo
     try{
         $datos['resultado'] = AccesoBD::getFiliaciones();
@@ -24,11 +24,11 @@
         Utils::manageException($e);
     }
 	$html['body'] = Utils::getBasicBody();
-	//Mostrar pacientes
-	$datos['titulo'] = 'Pacientes:';
+	//Mostrar filiaciones
+	$datos['titulo'] = 'Filiaciones:';
 	$datos['clave'] = CampoSession::NASI;
 	$datos['destino'] = '';
-	$datos['vacio'] = 'No hay pacientes a nombre de este usuario';
+	$datos['vacio'] = 'No hay filiaicones a nombre de este usuario';
 	$html['body'] = $html['body'] . make_eleccion($datos);
 	unset($datos);
 	//Crear las opciones

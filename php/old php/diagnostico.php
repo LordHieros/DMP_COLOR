@@ -70,10 +70,10 @@
 	//EMPIEZA EL HTML
 	//Ponemos el título de la página
 	if($editar){
-		$html['titulo'] = 'Editar datos de diagnóstico del paciente ' . $_SESSION[CampoSession::NASI];
+		$html['titulo'] = 'Editar datos de diagnóstico de la filiación ' . $_SESSION[CampoSession::NASI];
 	}
 	else{
-		$html['titulo'] = 'Crear datos de diagnóstico del paciente ' . $_SESSION[CampoSession::NASI];
+		$html['titulo'] = 'Crear datos de diagnóstico de la filiación ' . $_SESSION[CampoSession::NASI];
 	}
 	//Creamos el cuerpo
 	$html['body'] = '';

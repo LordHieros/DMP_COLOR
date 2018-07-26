@@ -16,7 +16,7 @@
     } //Para ir al panel de usuario si ya se ha iniciado sesión
     //EMPIEZA EL HTML
     //Ponemos el título de la página
-    $html['titulo'] = 'Crear NASI de paciente para ' . $_SESSION[CampoSession::NOMBRE_USUARIO];
+    $html['titulo'] = 'Crear NASI de filiación para ' . $_SESSION[CampoSession::NOMBRE_USUARIO];
     //Creamos el cuerpo
     try {
         $form = Formulario::formNHC()->makeForm();
@@ -26,7 +26,7 @@
     $html['body'] = Utils::getBasicBody() . $form;
     //Crear las opciones
     $datos[0]['tipo'] = 'redirección';
-    $datos[0]['objetivo'] = 'seleccionPaciente.php';
+    $datos[0]['objetivo'] = 'seleccionFiliacion.php';
     $datos[0]['nombre'] = 'Volver';
     $html['body'] = $html['body'] . make_navbar($datos);
     unset($datos);
